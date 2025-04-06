@@ -1,0 +1,367 @@
+
+    <!DOCTYPE html>
+    <html lang="es">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Informe de Rendimiento - Asistente de Ventas WhatsApp</title>
+      <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+      <style>
+        body {
+          font-family: Arial, sans-serif;
+          line-height: 1.6;
+          color: #333;
+          max-width: 1200px;
+          margin: 0 auto;
+          padding: 20px;
+        }
+        
+        h1, h2, h3 {
+          color: #2c3e50;
+        }
+        
+        .section {
+          margin-bottom: 40px;
+          padding: 20px;
+          background-color: #f9f9f9;
+          border-radius: 5px;
+          box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        
+        .chart-container {
+          margin-bottom: 30px;
+        }
+        
+        .table-container {
+          margin-bottom: 30px;
+          overflow-x: auto;
+        }
+        
+        table {
+          width: 100%;
+          border-collapse: collapse;
+        }
+        
+        th, td {
+          padding: 10px;
+          text-align: left;
+          border-bottom: 1px solid #ddd;
+        }
+        
+        th {
+          background-color: #f2f2f2;
+        }
+        
+        tr:hover {
+          background-color: #f5f5f5;
+        }
+        
+        .summary-box {
+          display: inline-block;
+          width: 200px;
+          padding: 15px;
+          margin: 10px;
+          background-color: #e8f4f8;
+          border-radius: 5px;
+          box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+          text-align: center;
+        }
+        
+        .summary-box h4 {
+          margin-top: 0;
+          color: #2980b9;
+        }
+        
+        .summary-box p {
+          font-size: 24px;
+          font-weight: bold;
+          margin: 10px 0;
+        }
+        
+        .summary-box small {
+          display: block;
+          color: #7f8c8d;
+        }
+        
+        .status-passed {
+          color: #27ae60;
+        }
+        
+        .status-failed {
+          color: #e74c3c;
+        }
+        
+        .status-skipped {
+          color: #f39c12;
+        }
+        
+        .footer {
+          margin-top: 50px;
+          padding-top: 20px;
+          border-top: 1px solid #eee;
+          text-align: center;
+          color: #7f8c8d;
+          font-size: 14px;
+        }
+      </style>
+    </head>
+    <body>
+      <h1>Informe de Rendimiento - Asistente de Ventas WhatsApp</h1>
+      <p>Generado el 6/4/2025, 07:55:31</p>
+      
+      <div class="section">
+        <h2>Información del Sistema</h2>
+        <div class="summary-boxes">
+  
+      <div class="summary-box">
+        <h4>Sistema Operativo</h4>
+        <p>win32 x64</p>
+        <small>Microsoft Windows 11 Home Single Language</small>
+      </div>
+    
+      <div class="summary-box">
+        <h4>CPU</h4>
+        <p>12 núcleos</p>
+        <small>AMD Ryzen 5 8640U w/ Radeon 760M Graphics</small>
+      </div>
+    
+      <div class="summary-box">
+        <h4>Memoria</h4>
+        <p>15.27 GB</p>
+        <small>12.53 GB usado</small>
+      </div>
+    
+        </div>
+      </div>
+  
+      <div class="section">
+        <h2>Pruebas de Rendimiento</h2>
+    
+        <div class="summary-boxes">
+      
+          <div class="summary-box">
+            <h4>verifyLicense</h4>
+            <p>1.00 ms</p>
+            <small>Min: 0.32 ms, Max: 8.37 ms</small>
+          </div>
+        
+          <div class="summary-box">
+            <h4>generateDeviceId</h4>
+            <p>0.38 ms</p>
+            <small>Min: 0.27 ms, Max: 1.50 ms</small>
+          </div>
+        
+        </div>
+      
+    <div class="chart-container">
+      <h3>Tiempo de Ejecución Promedio (ms)</h3>
+      <canvas id="performance-chart"></canvas>
+      <script>
+        new Chart(document.getElementById('performance-chart'), {
+          type: 'bar',
+          data: {
+            labels: ["verifyLicense","generateDeviceId"],
+            datasets: [{
+              label: 'Tiempo de Ejecución Promedio (ms)',
+              data: [1.0041979999999966,0.3829110000000037],
+              backgroundColor: ["#3498db","#3498db"]
+            }]
+          },
+          options: {
+            responsive: true,
+            scales: {
+              y: {
+                beginAtZero: true
+              }
+            }
+          }
+        });
+      </script>
+    </div>
+  
+      </div>
+    
+      <div class="section">
+        <h2>Pruebas de Carga</h2>
+    
+        <div class="summary-boxes">
+          <div class="summary-box">
+            <h4>Usuarios Concurrentes</h4>
+            <p>50</p>
+          </div>
+          <div class="summary-box">
+            <h4>Operaciones Totales</h4>
+            <p>500</p>
+          </div>
+          <div class="summary-box">
+            <h4>Operaciones por Segundo</h4>
+            <p>585.70</p>
+          </div>
+          <div class="summary-box">
+            <h4>Tasa de Éxito</h4>
+            <p>100.00%</p>
+          </div>
+        </div>
+      
+    <div class="chart-container">
+      <h3>Tiempo de Respuesta Promedio (ms)</h3>
+      <canvas id="load-test-chart"></canvas>
+      <script>
+        new Chart(document.getElementById('load-test-chart'), {
+          type: 'bar',
+          data: {
+            labels: ["verifyLicense","generateDeviceId"],
+            datasets: [{
+              label: 'Tiempo de Respuesta Promedio (ms)',
+              data: [2.62,0.6],
+              backgroundColor: ["#e74c3c","#e74c3c"]
+            }]
+          },
+          options: {
+            responsive: true,
+            scales: {
+              y: {
+                beginAtZero: true
+              }
+            }
+          }
+        });
+      </script>
+    </div>
+  
+        <h3>Uso de Recursos</h3>
+        <div class="summary-boxes">
+          <div class="summary-box">
+            <h4>CPU (Usuario)</h4>
+            <p>63.00 ms</p>
+          </div>
+          <div class="summary-box">
+            <h4>CPU (Sistema)</h4>
+            <p>47.00 ms</p>
+          </div>
+          <div class="summary-box">
+            <h4>Memoria RSS</h4>
+            <p>54.24 MB</p>
+            <small>Incremento: 3.39 MB</small>
+          </div>
+          <div class="summary-box">
+            <h4>Memoria Heap</h4>
+            <p>12.59 MB</p>
+            <small>Incremento: 1.13 MB</small>
+          </div>
+        </div>
+      
+      </div>
+    
+      <div class="section">
+        <h2>Pruebas de Integración</h2>
+    
+        <div class="summary-boxes">
+          <div class="summary-box">
+            <h4>Total de Pruebas</h4>
+            <p>6</p>
+          </div>
+          <div class="summary-box">
+            <h4>Pruebas Pasadas</h4>
+            <p class="status-passed">3</p>
+          </div>
+          <div class="summary-box">
+            <h4>Pruebas Fallidas</h4>
+            <p class="status-failed">3</p>
+          </div>
+          <div class="summary-box">
+            <h4>Pruebas Omitidas</h4>
+            <p class="status-skipped">0</p>
+          </div>
+        </div>
+      
+    <div class="chart-container">
+      <h3>Resultados de Pruebas de Integración</h3>
+      <canvas id="integration-test-chart"></canvas>
+      <script>
+        new Chart(document.getElementById('integration-test-chart'), {
+          type: 'bar',
+          data: {
+            labels: ["Pasadas","Fallidas","Omitidas"],
+            datasets: [{
+              label: 'Resultados de Pruebas de Integración',
+              data: [3,3,0],
+              backgroundColor: ["#27ae60","#e74c3c","#f39c12"]
+            }]
+          },
+          options: {
+            responsive: true,
+            scales: {
+              y: {
+                beginAtZero: true
+              }
+            }
+          }
+        });
+      </script>
+    </div>
+  
+    <div class="table-container">
+      <h3>Detalle de Pruebas de Integración</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Prueba</th><th>Estado</th><th>Duración (ms)</th><th>Error</th>
+          </tr>
+        </thead>
+        <tbody>
+          
+            <tr>
+              <td>Inicialización del cliente de licencias</td><td>passed</td><td>1.38</td><td>-</td>
+            </tr>
+          
+            <tr>
+              <td>Verificación de licencia</td><td>passed</td><td>6.88</td><td>-</td>
+            </tr>
+          
+            <tr>
+              <td>Generación de ID de dispositivo</td><td>passed</td><td>0.55</td><td>-</td>
+            </tr>
+          
+            <tr>
+              <td>Inicialización del gestor de actualizaciones</td><td>failed</td><td>0.00</td><td>Gestor de actualizaciones no disponible</td>
+            </tr>
+          
+            <tr>
+              <td>Obtención del estado de actualizaciones</td><td>failed</td><td>0.00</td><td>Gestor de actualizaciones no disponible</td>
+            </tr>
+          
+            <tr>
+              <td>Integración entre cliente de licencias y gestor de actualizaciones</td><td>failed</td><td>0.00</td><td>Cliente de licencias o gestor de actualizaciones no disponible</td>
+            </tr>
+          
+        </tbody>
+      </table>
+    </div>
+  
+      </div>
+    
+    <div class="section">
+      <h2>Conclusiones</h2>
+      <p>Basado en los resultados de las pruebas, se pueden extraer las siguientes conclusiones:</p>
+      <ul>
+  <li>El rendimiento general de la aplicación es <strong>excelente</strong>, con tiempos de respuesta promedio por debajo de 50 ms.</li><li>La aplicación maneja <strong>muy bien</strong> la carga, procesando más de 100 operaciones por segundo.</li><li>La tasa de éxito bajo carga es <strong>excelente</strong> (100%).</li><li>Hay <strong>problemas significativos</strong> en la integración entre los componentes, con solo 50.00% de las pruebas pasando.</li>
+      </ul>
+      
+      <h3>Recomendaciones</h3>
+      <ul>
+  
+        <li>Realizar pruebas periódicas de rendimiento para detectar regresiones.</li>
+        <li>Monitorear el uso de recursos en producción para identificar posibles problemas.</li>
+        <li>Implementar un sistema de alertas para detectar problemas de rendimiento en tiempo real.</li>
+  <li>Corregir los problemas de integración identificados en las 3 pruebas fallidas.</li>
+      </ul>
+    </div>
+    
+    <div class="footer">
+      <p>Informe generado para el Asistente de Ventas WhatsApp</p>
+      <p>© 2025 Tu Empresa</p>
+    </div>
+  </body>
+  </html>
+  

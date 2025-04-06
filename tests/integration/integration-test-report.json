@@ -1,0 +1,53 @@
+{
+  "date": "2025-04-06T22:55:04.227Z",
+  "system": {
+    "platform": "win32",
+    "release": "10.0.26100",
+    "arch": "x64",
+    "cpus": 12
+  },
+  "tests": [
+    {
+      "name": "Inicialización del cliente de licencias",
+      "status": "passed",
+      "duration": 1.3817000000000093,
+      "error": null
+    },
+    {
+      "name": "Verificación de licencia",
+      "status": "passed",
+      "duration": 6.881900000000002,
+      "error": null
+    },
+    {
+      "name": "Generación de ID de dispositivo",
+      "status": "passed",
+      "duration": 0.5454000000000008,
+      "error": null
+    },
+    {
+      "name": "Inicialización del gestor de actualizaciones",
+      "status": "failed",
+      "duration": 0,
+      "error": "Gestor de actualizaciones no disponible"
+    },
+    {
+      "name": "Obtención del estado de actualizaciones",
+      "status": "failed",
+      "duration": 0,
+      "error": "Gestor de actualizaciones no disponible"
+    },
+    {
+      "name": "Integración entre cliente de licencias y gestor de actualizaciones",
+      "status": "failed",
+      "duration": 0,
+      "error": "Cliente de licencias o gestor de actualizaciones no disponible"
+    }
+  ],
+  "summary": {
+    "total": 6,
+    "passed": 3,
+    "failed": 3,
+    "skipped": 0
+  }
+}

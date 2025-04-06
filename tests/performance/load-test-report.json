@@ -1,0 +1,2389 @@
+{
+  "system": {
+    "os": {
+      "platform": "win32",
+      "release": "10.0.26100",
+      "arch": "x64",
+      "version": "Microsoft Windows 11 Home Single Language"
+    },
+    "cpu": {
+      "model": "AMD Ryzen 5 8640U w/ Radeon 760M Graphics",
+      "cores": 12,
+      "speed": 3.5
+    },
+    "memory": {
+      "total": "15.27 GB",
+      "free": "2.66 GB",
+      "used": "12.61 GB"
+    },
+    "disk": {
+      "total": "475.87 GB",
+      "free": "323.89 GB",
+      "used": "151.98 GB"
+    }
+  },
+  "tests": {
+    "userResults": [
+      {
+        "userId": 0,
+        "operations": [
+          {
+            "type": "verifyLicense",
+            "duration": 22.558799999999792
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.36459999999988213
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.29220000000032087
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.269800000000032
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.3091999999996915
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.2887000000000626
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.4147000000002663
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.9034999999998945
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.8192000000003645
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.5311999999998989
+          }
+        ],
+        "errors": []
+      },
+      {
+        "userId": 1,
+        "operations": [
+          {
+            "type": "verifyLicense",
+            "duration": 20.276299999999992
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.3886999999999716
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.4952000000002954
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.4499999999998181
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.3298000000004322
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.7177000000001499
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.5061000000000604
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 1.626800000000003
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.9909000000002379
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.32720000000017535
+          }
+        ],
+        "errors": []
+      },
+      {
+        "userId": 2,
+        "operations": [
+          {
+            "type": "verifyLicense",
+            "duration": 19.840499999999793
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.5903000000002976
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.28150000000005093
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.27329999999983556
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.3930000000000291
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.36580000000003565
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 6.676500000000033
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.6748000000002321
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.490099999999984
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 1.3045000000001892
+          }
+        ],
+        "errors": []
+      },
+      {
+        "userId": 3,
+        "operations": [
+          {
+            "type": "verifyLicense",
+            "duration": 19.534900000000107
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.2626999999997679
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.28290000000015425
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.2847999999999047
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.3012999999996282
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.8402000000000953
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.5260000000002947
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.3128999999998996
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.4238999999997759
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.9101000000000568
+          }
+        ],
+        "errors": []
+      },
+      {
+        "userId": 4,
+        "operations": [
+          {
+            "type": "verifyLicense",
+            "duration": 19.234699999999975
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.28430000000025757
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.28399999999965075
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.2853999999997541
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.29169999999976426
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.2662999999997737
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.48070000000006985
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.42410000000018044
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.7977000000000771
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.754399999999805
+          }
+        ],
+        "errors": []
+      },
+      {
+        "userId": 5,
+        "operations": [
+          {
+            "type": "verifyLicense",
+            "duration": 18.782200000000103
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.3306999999999789
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.328899999999976
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.428599999999733
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.28569999999990614
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.5149000000001251
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.31280000000015207
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.3067000000000917
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 1.0289999999999964
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.987999999999829
+          }
+        ],
+        "errors": []
+      },
+      {
+        "userId": 6,
+        "operations": [
+          {
+            "type": "verifyLicense",
+            "duration": 18.472600000000057
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 1.344000000000051
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.3030999999996311
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.3813000000000102
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.3894000000000233
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.5280000000002474
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.4623999999998887
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.7139000000001943
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.5509000000001834
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.5921000000003005
+          }
+        ],
+        "errors": []
+      },
+      {
+        "userId": 7,
+        "operations": [
+          {
+            "type": "verifyLicense",
+            "duration": 18.172599999999875
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.31419999999980064
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.29179999999996653
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.9758999999999105
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.28359999999975116
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.48629999999957363
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.5357000000003609
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.677599999999984
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.5828999999998814
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.3447000000001026
+          }
+        ],
+        "errors": []
+      },
+      {
+        "userId": 8,
+        "operations": [
+          {
+            "type": "verifyLicense",
+            "duration": 17.863000000000284
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.26870000000008076
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.2807999999999993
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.8892000000000735
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.30349999999998545
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.4742999999998574
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.41840000000001965
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.3499000000001615
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.34930000000031214
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.28110000000015134
+          }
+        ],
+        "errors": []
+      },
+      {
+        "userId": 9,
+        "operations": [
+          {
+            "type": "verifyLicense",
+            "duration": 17.603900000000067
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.27930000000014843
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.7905000000000655
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.36970000000019354
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.2964999999999236
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.37030000000004293
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.4293999999999869
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.9830999999999221
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.4621999999999389
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 1.312800000000152
+          }
+        ],
+        "errors": []
+      },
+      {
+        "userId": 10,
+        "operations": [
+          {
+            "type": "verifyLicense",
+            "duration": 17.30089999999973
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.5996000000000095
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.3022000000000844
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.3089999999997417
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.3143000000000029
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 1.2730000000001382
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.8548999999998159
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.27930000000014843
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.8099000000001979
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.6727000000000771
+          }
+        ],
+        "errors": []
+      },
+      {
+        "userId": 11,
+        "operations": [
+          {
+            "type": "verifyLicense",
+            "duration": 16.844900000000052
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.2721999999998843
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.3301000000001295
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.2660999999998239
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.5134000000002743
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.27799999999979264
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.39350000000013097
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 1.2029999999999745
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.8344999999999345
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.4289000000003398
+          }
+        ],
+        "errors": []
+      },
+      {
+        "userId": 12,
+        "operations": [
+          {
+            "type": "verifyLicense",
+            "duration": 16.17520000000013
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.3006999999997788
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.30110000000013315
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.2547999999997046
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.30969999999979336
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.7472999999999956
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 1.1301000000003114
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.48669999999992797
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.6026000000001659
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.9567000000001826
+          }
+        ],
+        "errors": []
+      },
+      {
+        "userId": 13,
+        "operations": [
+          {
+            "type": "verifyLicense",
+            "duration": 15.672599999999875
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 1.018999999999778
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.3393999999998414
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.2670000000002801
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.7346999999999753
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.2736000000004424
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.28270000000020445
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.38439999999991414
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.504399999999805
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 1.0700999999999112
+          }
+        ],
+        "errors": []
+      },
+      {
+        "userId": 14,
+        "operations": [
+          {
+            "type": "verifyLicense",
+            "duration": 15.313199999999597
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.32780000000002474
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.3033999999997832
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.29520000000002256
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.27850000000034925
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.46869999999989886
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.43040000000019063
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.6143000000001848
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 1.2671999999997752
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.4618000000000393
+          }
+        ],
+        "errors": []
+      },
+      {
+        "userId": 15,
+        "operations": [
+          {
+            "type": "verifyLicense",
+            "duration": 14.986699999999928
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.2640999999998712
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.32740000000012515
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.28670000000010987
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.3164999999999054
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 1.4054999999998472
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.29579999999987194
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.4513000000001739
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.3053999999997359
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.518800000000283
+          }
+        ],
+        "errors": []
+      },
+      {
+        "userId": 16,
+        "operations": [
+          {
+            "type": "verifyLicense",
+            "duration": 14.653899999999794
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 1.076100000000224
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.3162999999999556
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.2667999999998756
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.30780000000004293
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 1.4306000000001404
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.580199999999877
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.33239999999977954
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 1.9675999999999476
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.918999999999869
+          }
+        ],
+        "errors": []
+      },
+      {
+        "userId": 17,
+        "operations": [
+          {
+            "type": "verifyLicense",
+            "duration": 14.291299999999865
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.8539000000000669
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.34429999999974825
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.2946999999999207
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.34639999999990323
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.27320000000008804
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.3069000000000415
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.5450000000000728
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.3526000000001659
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.3874999999998181
+          }
+        ],
+        "errors": []
+      },
+      {
+        "userId": 18,
+        "operations": [
+          {
+            "type": "verifyLicense",
+            "duration": 13.928200000000288
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.27899999999999636
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.32150000000001455
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.26749999999992724
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 1.0066000000001623
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.3708000000001448
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 1.2822000000001026
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 1.1161000000001877
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.7419999999997344
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.8160000000002583
+          }
+        ],
+        "errors": []
+      },
+      {
+        "userId": 19,
+        "operations": [
+          {
+            "type": "verifyLicense",
+            "duration": 13.58789999999999
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 1.1806000000001404
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.30960000000004584
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.45100000000002183
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.7835000000000036
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.32070000000021537
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.28210000000035507
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.29799999999977445
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.30150000000003274
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.338799999999992
+          }
+        ],
+        "errors": []
+      },
+      {
+        "userId": 20,
+        "operations": [
+          {
+            "type": "verifyLicense",
+            "duration": 13.13339999999971
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.2763999999997395
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.45859999999993306
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.2615000000000691
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.31989999999996144
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.3051999999997861
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 1.0592000000001462
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.6864000000000487
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.43309999999974025
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 1.5722000000000662
+          }
+        ],
+        "errors": []
+      },
+      {
+        "userId": 21,
+        "operations": [
+          {
+            "type": "verifyLicense",
+            "duration": 12.023599999999988
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.32560000000012224
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.6856999999999971
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.265400000000227
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.2919000000001688
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.4110000000000582
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.5824000000002343
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.30789999999979045
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 1.7816000000002532
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.43719999999984793
+          }
+        ],
+        "errors": []
+      },
+      {
+        "userId": 22,
+        "operations": [
+          {
+            "type": "verifyLicense",
+            "duration": 11.38799999999992
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.6286000000000058
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.3483000000001084
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.26710000000002765
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.2925999999997657
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.4145000000003165
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.3429000000000997
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 1.585899999999583
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 1.3634999999999309
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 1.0423000000000684
+          }
+        ],
+        "errors": []
+      },
+      {
+        "userId": 23,
+        "operations": [
+          {
+            "type": "verifyLicense",
+            "duration": 10.90289999999959
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.2921000000001186
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.3372999999996864
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.34649999999965075
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.5866000000000895
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.3117000000002008
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.28670000000010987
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.2804000000000997
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.4657000000001972
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.2964999999999236
+          }
+        ],
+        "errors": []
+      },
+      {
+        "userId": 24,
+        "operations": [
+          {
+            "type": "verifyLicense",
+            "duration": 10.564600000000155
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.2822999999998501
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.5543999999999869
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.2696000000000822
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.3512000000000626
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.2956000000003769
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.28179999999974825
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 1.0091999999999643
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.5837999999998829
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.9085000000000036
+          }
+        ],
+        "errors": []
+      },
+      {
+        "userId": 25,
+        "operations": [
+          {
+            "type": "verifyLicense",
+            "duration": 10.202999999999975
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.2723999999998341
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.31510000000025684
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.2802999999998974
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.27779999999984284
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.5354000000002088
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.4416000000001077
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 1.303899999999885
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.5423000000000684
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 1.127400000000307
+          }
+        ],
+        "errors": []
+      },
+      {
+        "userId": 26,
+        "operations": [
+          {
+            "type": "verifyLicense",
+            "duration": 9.871799999999894
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.26630000000022847
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.2986999999998261
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 1.180699999999888
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.31100000000014916
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.3910999999998239
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.2798000000002503
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.40370000000029904
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.9416999999998552
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.9911999999999352
+          }
+        ],
+        "errors": []
+      },
+      {
+        "userId": 27,
+        "operations": [
+          {
+            "type": "verifyLicense",
+            "duration": 9.497499999999945
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.49870000000009895
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.3101999999998952
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.877100000000155
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.2812999999996464
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.2921999999998661
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.34560000000010405
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.3376000000002932
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.587500000000091
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.9751000000001113
+          }
+        ],
+        "errors": []
+      },
+      {
+        "userId": 28,
+        "operations": [
+          {
+            "type": "verifyLicense",
+            "duration": 9.0942
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.9465000000000146
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.2878000000000611
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.5124999999998181
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.2944999999999709
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.2794999999996435
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.7885000000001128
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.31040000000029977
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 1.0001000000002023
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.49350000000004
+          }
+        ],
+        "errors": []
+      },
+      {
+        "userId": 29,
+        "operations": [
+          {
+            "type": "verifyLicense",
+            "duration": 8.757699999999659
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.2721000000001368
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.34629999999970096
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.30330000000003565
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.2888999999995576
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.8775999999998021
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.28749999999990905
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 1.4324999999998909
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.7055000000000291
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.3306999999999789
+          }
+        ],
+        "errors": []
+      },
+      {
+        "userId": 30,
+        "operations": [
+          {
+            "type": "verifyLicense",
+            "duration": 8.394999999999982
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.2676000000001295
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.3128999999998996
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.45839999999998327
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.28710000000000946
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.3093000000003485
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.2968999999998232
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 1.0679000000000087
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.4861999999998261
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.38029999999980646
+          }
+        ],
+        "errors": []
+      },
+      {
+        "userId": 31,
+        "operations": [
+          {
+            "type": "verifyLicense",
+            "duration": 8.101500000000215
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.285200000000259
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.29520000000002256
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.2644999999997708
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.4033999999996922
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.2638999999999214
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.5297999999997955
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.3053999999997359
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.6557999999999993
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.3611999999998261
+          }
+        ],
+        "errors": []
+      },
+      {
+        "userId": 32,
+        "operations": [
+          {
+            "type": "verifyLicense",
+            "duration": 6.981099999999969
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.26450000000022555
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.4610000000002401
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 1.2357999999999265
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.30569999999988795
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.3112999999998465
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 6.671200000000226
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.4416999999998552
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.4117999999998574
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.370600000000195
+          }
+        ],
+        "errors": []
+      },
+      {
+        "userId": 33,
+        "operations": [
+          {
+            "type": "verifyLicense",
+            "duration": 5.703899999999976
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.2717000000002372
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 1.2835999999997512
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.3328000000001339
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.2903000000001157
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.2764999999999418
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.4137999999998101
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.37210000000004584
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.33330000000023574
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 1.1747999999997774
+          }
+        ],
+        "errors": []
+      },
+      {
+        "userId": 34,
+        "operations": [
+          {
+            "type": "verifyLicense",
+            "duration": 5.346299999999701
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.27880000000004657
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.366099999999733
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.26739999999972497
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.378400000000056
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.29290000000037253
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.3011999999998807
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.2721000000001368
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.29340000000001965
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.3272999999999229
+          }
+        ],
+        "errors": []
+      },
+      {
+        "userId": 35,
+        "operations": [
+          {
+            "type": "verifyLicense",
+            "duration": 5.021799999999985
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.3024000000000342
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.28399999999965075
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.26270000000022264
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.29209999999966385
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 1.1550999999999476
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.3597999999997228
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.5717000000004191
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.6375000000002728
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.8524000000002161
+          }
+        ],
+        "errors": []
+      },
+      {
+        "userId": 36,
+        "operations": [
+          {
+            "type": "verifyLicense",
+            "duration": 4.68100000000004
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.5498999999999796
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.3546000000001186
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.2644000000000233
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 1.4678000000003522
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.2676000000001295
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.34700000000020736
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.7950999999998203
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.4728999999997541
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 1.1657000000000153
+          }
+        ],
+        "errors": []
+      },
+      {
+        "userId": 37,
+        "operations": [
+          {
+            "type": "verifyLicense",
+            "duration": 4.328099999999722
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.2747999999996864
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.36220000000002983
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.28650000000016007
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.5466000000001259
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.6896999999999025
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.3611000000000786
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 1.0561999999999898
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.9489000000003216
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.3731999999999971
+          }
+        ],
+        "errors": []
+      },
+      {
+        "userId": 38,
+        "operations": [
+          {
+            "type": "verifyLicense",
+            "duration": 4.005300000000261
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.7617000000000189
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.350800000000163
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.5381000000002132
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.41049999999995634
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.25939999999991414
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.30389999999988504
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.3583000000003267
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 2.3246000000003733
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 1.0830000000000837
+          }
+        ],
+        "errors": []
+      },
+      {
+        "userId": 39,
+        "operations": [
+          {
+            "type": "verifyLicense",
+            "duration": 3.720600000000104
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.4068999999999505
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 1.348700000000008
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.2614999999996144
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.37560000000030414
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.4650000000001455
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.5135000000000218
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.7462000000000444
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.5052999999998065
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.3292999999998756
+          }
+        ],
+        "errors": []
+      },
+      {
+        "userId": 40,
+        "operations": [
+          {
+            "type": "verifyLicense",
+            "duration": 3.4363000000003012
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.3582000000001244
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.31310000000030414
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 1.0158000000001266
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.5070999999998094
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.3658999999997832
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 1.0953999999996995
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.7049999999999272
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.4357999999997446
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.8850999999999658
+          }
+        ],
+        "errors": []
+      },
+      {
+        "userId": 41,
+        "operations": [
+          {
+            "type": "verifyLicense",
+            "duration": 3.1300999999998567
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.968199999999797
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.3045000000001892
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.27089999999998327
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.7974000000003798
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.2930999999998676
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 1.3402999999998428
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.5390000000002146
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.4701999999997497
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 1.1116000000001804
+          }
+        ],
+        "errors": []
+      },
+      {
+        "userId": 42,
+        "operations": [
+          {
+            "type": "verifyLicense",
+            "duration": 2.8263999999999214
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.6128999999996267
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.30189999999993233
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.2746999999999389
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.28050000000030195
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.3261000000002241
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 1.231999999999971
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 13.916700000000219
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 1.3881999999998698
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.813799999999901
+          }
+        ],
+        "errors": []
+      },
+      {
+        "userId": 43,
+        "operations": [
+          {
+            "type": "verifyLicense",
+            "duration": 2.5163000000002285
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.278599999999642
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.29349999999976717
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.2817000000000007
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.30540000000019063
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.2701000000001841
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 1.0090000000000146
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.2739999999998872
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 1.4556000000002314
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 1.1236999999996442
+          }
+        ],
+        "errors": []
+      },
+      {
+        "userId": 44,
+        "operations": [
+          {
+            "type": "verifyLicense",
+            "duration": 2.2294999999999163
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.3123000000000502
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.31140000000004875
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.2640999999998712
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.6168999999999869
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.43580000000019936
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 1.2451000000000931
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.62270000000035
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.6457000000000335
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.595600000000104
+          }
+        ],
+        "errors": []
+      },
+      {
+        "userId": 45,
+        "operations": [
+          {
+            "type": "verifyLicense",
+            "duration": 1.947099999999864
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.2761999999997897
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.2878000000000611
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.3427000000001499
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.2873999999997068
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.26690000000007785
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.2818999999999505
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.36770000000024083
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 1.3104000000002998
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 1.6979000000001179
+          }
+        ],
+        "errors": []
+      },
+      {
+        "userId": 46,
+        "operations": [
+          {
+            "type": "verifyLicense",
+            "duration": 1.6659999999997126
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.26060000000006767
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.3924000000001797
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.36560000000008586
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.3646000000003369
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.2792999999996937
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.6881999999995969
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.3459000000002561
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 1.6979999999998654
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.3731999999999971
+          }
+        ],
+        "errors": []
+      },
+      {
+        "userId": 47,
+        "operations": [
+          {
+            "type": "verifyLicense",
+            "duration": 1.3092000000001462
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.4938999999999396
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.2817000000000007
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.27919999999994616
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.2930999999998676
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 1.1130000000002838
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.47650000000021464
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.7321999999999207
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.6287999999999556
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.8698000000003958
+          }
+        ],
+        "errors": []
+      },
+      {
+        "userId": 48,
+        "operations": [
+          {
+            "type": "verifyLicense",
+            "duration": 0.9947999999999411
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 1.2148999999999432
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.2798999999999978
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.32960000000002765
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.3287999999997737
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.2717999999999847
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.8501999999998588
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.2721000000001368
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 10.404700000000048
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.5939000000003034
+          }
+        ],
+        "errors": []
+      },
+      {
+        "userId": 49,
+        "operations": [
+          {
+            "type": "verifyLicense",
+            "duration": 0.7107999999998356
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.3763000000003558
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.29950000000008004
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.2901000000001659
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.28119999999989886
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.26250000000027285
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.3172999999997046
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.6848999999997432
+          },
+          {
+            "type": "verifyLicense",
+            "duration": 0.918999999999869
+          },
+          {
+            "type": "generateDeviceId",
+            "duration": 0.6277000000000044
+          }
+        ],
+        "errors": []
+      }
+    ],
+    "operationStats": {
+      "verifyLicense": {
+        "count": 250,
+        "average": 2.6239699999999937,
+        "min": 0.27779999999984284,
+        "max": 22.558799999999792,
+        "stdDev": 4.956950047609909
+      },
+      "generateDeviceId": {
+        "count": 250,
+        "average": 0.5978680000000186,
+        "min": 0.2547999999997046,
+        "max": 13.916700000000219,
+        "stdDev": 0.9098862589664835
+      }
+    },
+    "resources": {
+      "cpu": {
+        "user": 63,
+        "system": 47
+      },
+      "memory": {
+        "rss": {
+          "start": "50.86 MB",
+          "end": "54.24 MB",
+          "diff": "3.39 MB"
+        },
+        "heapTotal": {
+          "start": "18.28 MB",
+          "end": "19.28 MB",
+          "diff": "1 MB"
+        },
+        "heapUsed": {
+          "start": "11.45 MB",
+          "end": "12.59 MB",
+          "diff": "1.13 MB"
+        }
+      }
+    }
+  },
+  "summary": {
+    "date": "2025-04-06T22:55:23.628Z",
+    "totalUsers": 50,
+    "totalOperations": 500,
+    "totalErrors": 0,
+    "totalDuration": "853.68 ms",
+    "operationsPerSecond": "585.70",
+    "successRate": "100.00%",
+    "averageTimes": {
+      "verifyLicense": {
+        "average": "2.62 ms",
+        "min": "0.28 ms",
+        "max": "22.56 ms"
+      },
+      "generateDeviceId": {
+        "average": "0.60 ms",
+        "min": "0.25 ms",
+        "max": "13.92 ms"
+      }
+    }
+  }
+}
