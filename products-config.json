@@ -1,0 +1,254 @@
+{
+  "business": {
+    "name": "Tu Empresa",
+    "slogan": "Soluciones de formación para profesionales",
+    "website": "https://tuempresa.com",
+    "contact": {
+      "email": "info@tuempresa.com",
+      "phone": "+34 123 456 789",
+      "address": "Calle Principal 123, Madrid, España"
+    }
+  },
+  "categories": [
+    {
+      "id": "programming",
+      "name": "Programación",
+      "description": "Cursos de programación para todos los niveles",
+      "products": [
+        {
+          "id": "python-basic",
+          "name": "Python Básico",
+          "description": "Curso introductorio a la programación con Python",
+          "price": 299,
+          "currency": "EUR",
+          "duration": "4 semanas",
+          "modality": ["Online en vivo", "Grabado"],
+          "level": "Principiante",
+          "details": [
+            "Introducción a la programación",
+            "Sintaxis básica de Python",
+            "Estructuras de datos",
+            "Funciones y módulos",
+            "Programación orientada a objetos básica"
+          ]
+        },
+        {
+          "id": "python-advanced",
+          "name": "Python Avanzado",
+          "description": "Curso avanzado de Python para desarrolladores",
+          "price": 499,
+          "currency": "EUR",
+          "duration": "6 semanas",
+          "modality": ["Online en vivo", "Híbrido"],
+          "level": "Intermedio/Avanzado",
+          "details": [
+            "Programación orientada a objetos avanzada",
+            "Patrones de diseño",
+            "Concurrencia y paralelismo",
+            "Testing y depuración",
+            "Desarrollo web con Django"
+          ]
+        },
+        {
+          "id": "javascript-basic",
+          "name": "JavaScript Básico",
+          "description": "Fundamentos de JavaScript para desarrollo web",
+          "price": 299,
+          "currency": "EUR",
+          "duration": "4 semanas",
+          "modality": ["Online en vivo", "Grabado"],
+          "level": "Principiante",
+          "details": [
+            "Introducción a JavaScript",
+            "DOM y manipulación de elementos",
+            "Eventos y listeners",
+            "AJAX y Fetch API",
+            "ES6+ y características modernas"
+          ]
+        },
+        {
+          "id": "javascript-advanced",
+          "name": "JavaScript Avanzado",
+          "description": "Desarrollo avanzado con JavaScript y frameworks modernos",
+          "price": 499,
+          "currency": "EUR",
+          "duration": "6 semanas",
+          "modality": ["Online en vivo", "Híbrido"],
+          "level": "Intermedio/Avanzado",
+          "details": [
+            "React.js",
+            "Node.js",
+            "TypeScript",
+            "Testing con Jest",
+            "Arquitectura de aplicaciones"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "design",
+      "name": "Diseño",
+      "description": "Cursos de diseño gráfico y UX/UI",
+      "products": [
+        {
+          "id": "ux-ui-basic",
+          "name": "Diseño UX/UI Básico",
+          "description": "Introducción al diseño de experiencia de usuario e interfaces",
+          "price": 349,
+          "currency": "EUR",
+          "duration": "5 semanas",
+          "modality": ["Online en vivo", "Grabado"],
+          "level": "Principiante",
+          "details": [
+            "Fundamentos de UX/UI",
+            "Investigación de usuarios",
+            "Wireframing y prototipado",
+            "Principios de diseño visual",
+            "Herramientas: Figma básico"
+          ]
+        },
+        {
+          "id": "ux-ui-advanced",
+          "name": "Diseño UX/UI Avanzado",
+          "description": "Diseño avanzado de experiencias e interfaces de usuario",
+          "price": 549,
+          "currency": "EUR",
+          "duration": "8 semanas",
+          "modality": ["Online en vivo", "Híbrido"],
+          "level": "Intermedio/Avanzado",
+          "details": [
+            "Sistemas de diseño",
+            "Microinteracciones",
+            "Accesibilidad",
+            "Diseño responsive avanzado",
+            "Herramientas: Figma avanzado, Adobe XD"
+          ]
+        },
+        {
+          "id": "graphic-design",
+          "name": "Diseño Gráfico",
+          "description": "Fundamentos de diseño gráfico para medios digitales e impresos",
+          "price": 399,
+          "currency": "EUR",
+          "duration": "6 semanas",
+          "modality": ["Online en vivo", "Grabado"],
+          "level": "Principiante/Intermedio",
+          "details": [
+            "Teoría del color",
+            "Tipografía",
+            "Composición",
+            "Identidad de marca",
+            "Herramientas: Adobe Photoshop, Illustrator"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "marketing",
+      "name": "Marketing",
+      "description": "Cursos de marketing digital y estrategias de venta",
+      "products": [
+        {
+          "id": "digital-marketing",
+          "name": "Marketing Digital",
+          "description": "Estrategias de marketing para el entorno digital",
+          "price": 299,
+          "currency": "EUR",
+          "duration": "4 semanas",
+          "modality": ["Online en vivo", "Grabado"],
+          "level": "Principiante/Intermedio",
+          "details": [
+            "Fundamentos de marketing digital",
+            "SEO y SEM",
+            "Marketing de contenidos",
+            "Email marketing",
+            "Analítica web"
+          ]
+        },
+        {
+          "id": "social-media",
+          "name": "Social Media Marketing",
+          "description": "Estrategias de marketing en redes sociales",
+          "price": 349,
+          "currency": "EUR",
+          "duration": "5 semanas",
+          "modality": ["Online en vivo", "Grabado"],
+          "level": "Principiante/Intermedio",
+          "details": [
+            "Estrategia en redes sociales",
+            "Creación de contenido",
+            "Publicidad en redes sociales",
+            "Gestión de comunidades",
+            "Análisis y métricas"
+          ]
+        },
+        {
+          "id": "sales-techniques",
+          "name": "Técnicas de Venta",
+          "description": "Metodologías y técnicas para mejorar las ventas",
+          "price": 299,
+          "currency": "EUR",
+          "duration": "4 semanas",
+          "modality": ["Online en vivo", "Grabado"],
+          "level": "Todos los niveles",
+          "details": [
+            "Psicología de ventas",
+            "Proceso de venta consultiva",
+            "Manejo de objeciones",
+            "Cierre de ventas",
+            "Fidelización de clientes"
+          ]
+        }
+      ]
+    }
+  ],
+  "promotions": [
+    {
+      "id": "second-course-discount",
+      "name": "Descuento en segundo curso",
+      "description": "20% de descuento al inscribirte en un segundo curso",
+      "discount": 20,
+      "type": "percentage",
+      "validUntil": "2025-12-31"
+    },
+    {
+      "id": "early-bird",
+      "name": "Early Bird",
+      "description": "15% de descuento por inscripción anticipada (hasta 2 semanas antes del inicio)",
+      "discount": 15,
+      "type": "percentage",
+      "validUntil": "2025-12-31"
+    },
+    {
+      "id": "group-discount",
+      "name": "Descuento por grupo",
+      "description": "10% de descuento por cada persona al inscribirse en grupo (mínimo 3 personas)",
+      "discount": 10,
+      "type": "percentage",
+      "validUntil": "2025-12-31"
+    }
+  ],
+  "payment_methods": [
+    {
+      "id": "credit-card",
+      "name": "Tarjeta de crédito/débito",
+      "description": "Pago seguro con tarjeta a través de nuestra plataforma",
+      "options": ["Visa", "Mastercard", "American Express"]
+    },
+    {
+      "id": "bank-transfer",
+      "name": "Transferencia bancaria",
+      "description": "Pago mediante transferencia a nuestra cuenta bancaria"
+    },
+    {
+      "id": "paypal",
+      "name": "PayPal",
+      "description": "Pago seguro a través de PayPal"
+    },
+    {
+      "id": "installments",
+      "name": "Pago en cuotas",
+      "description": "Posibilidad de pagar en 3, 6 o 12 cuotas sin interés (solo para cursos superiores a 400€)"
+    }
+  ]
+}

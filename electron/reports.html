@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reportes y Estadísticas - Asistente de Ventas WhatsApp</title>
+    <style>
+        :root {
+            --primary-color: #25D366;
+            --secondary-color: #128C7E;
+            --dark-color: #075E54;
+            --light-color: #DCF8C6;
+            --danger-color: #FF5252;
+            --success-color: #4CAF50;
+            --warning-color: #FFC107;
+            --info-color: #2196F3;
+            --gray-color: #f5f5f5;
+            --dark-gray: #333;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f5f5;
+            color: #333;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        
+        .header {
+            background-color: var(--dark-color);
+            color: white;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .header h1 {
+            font-size: 1.5rem;
+            font-weight: 500;
+        }
+        
+        .main-container {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+        
+        .sidebar {
+            width: 250px;
+            background-color: white;
+            border-right: 1px solid #ddd;
+            display: flex;
+            flex-direction: column;
+            padding: 15px;
+        }
+        
+        .filter-section {
+            margin-bottom: 20px;
+        }
+        
+        .filter-section h3 {
+            margin-bottom: 10px;
+            color: var(--dark-color);
+        }
+        
+        .date-filter {
+            margin-top: 15px;
+        }
+        
+        .date-filter label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        
+        .date-filter input[type="date"] {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
+        
+        .report-type {
+            margin-top: 15px;
+        }
+        
+        .report-type select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
+        
+        .button-section {
+            margin-top: auto;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .btn {
+            display: flex;
+            align-items: center;
+            padding: 10px 15px;
+            margin-bottom: 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.2s;
+            text-align: left;
+        }
+        
+        .btn i {
+            margin-right: 10px;
+            font-size: 18px;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--secondary-color);
+        }
+        
+        .btn-secondary {
+            background-color: #f0f0f0;
+            color: #333;
+        }
+        
+        .btn-secondary:hover {
+            background-color: #e0e0e0;
+        }
+        
+        .content {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .report-container {
+            flex: 1;
+            background-color: white;
+            border-radius: 4px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            padding: 15px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .chart-container {
+            height: 300px;
+            margin-bottom: 20px;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .stat-card {
+            background-color: white;
+            border-radius: 4px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+        
+        .stat-card .value {
+            font-size: 2rem;
+            font-weight: bold;
+            margin: 10px 0;
+            color: var(--primary-color);
+        }
+        
+        .stat-card .label {
+            font-size: 0.9rem;
+            color: #777;
+        }
+        
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        
+        .data-table th,
+        .data-table td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .data-table th {
+            background-color: var(--light-color);
+            color: var(--dark-color);
+            font-weight: 500;
+        }
+        
+        .data-table tr:hover {
+            background-color: #f5f5f5;
+        }
+        
+        .footer {
+            background-color: white;
+            border-top: 1px solid #ddd;
+            padding: 10px 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            color: #777;
+        }
+        
+        /* Estilos para iconos (usando Material Icons) */
+        .material-icons {
+            font-family: 'Material Icons';
+            font-weight: normal;
+            font-style: normal;
+            font-size: 24px;
+            line-height: 1;
+            letter-spacing: normal;
+            text-transform: none;
+            display: inline-block;
+            white-space: nowrap;
+            word-wrap: normal;
+            direction: ltr;
+            -webkit-font-feature-settings: 'liga';
+            -webkit-font-smoothing: antialiased;
+        }
+        
+        /* Loader */
+        .loader {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+        }
+        
+        .loader-spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-radius: 50%;
+            border-top: 4px solid var(--primary-color);
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Tabs */
+        .tabs {
+            display: flex;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .tab {
+            padding: 10px 15px;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s;
+        }
+        
+        .tab.active {
+            border-bottom: 2px solid var(--primary-color);
+            color: var(--primary-color);
+            font-weight: 500;
+        }
+        
+        .tab:hover {
+            background-color: #f5f5f5;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+</head>
+<body>
+    <div class="header">
+        <h1>Reportes y Estadísticas - Asistente de Ventas WhatsApp</h1>
+        <div id="app-version">v1.0.0</div>
+    </div>
+    
+    <div class="main-container">
+        <div class="sidebar">
+            <div class="filter-section">
+                <h3>Filtros</h3>
+                
+                <div class="date-filter">
+                    <h4>Rango de Fechas</h4>
+                    <label for="start-date">Desde:</label>
+                    <input type="date" id="start-date">
+                    
+                    <label for="end-date">Hasta:</label>
+                    <input type="date" id="end-date">
+                </div>
+                
+                <div class="report-type">
+                    <h4>Tipo de Reporte</h4>
+                    <select id="report-type">
+                        <option value="overview">Resumen General</option>
+                        <option value="conversations">Conversaciones</option>
+                        <option value="sentiment">Análisis de Sentimiento</option>
+                        <option value="clients">Datos de Clientes</option>
+                        <option value="performance">Rendimiento</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="button-section">
+                <button id="generate-report-btn" class="btn btn-primary">
+                    <i class="material-icons">assessment</i>
+                    <span>Generar Reporte</span>
+                </button>
+                
+                <button id="export-report-btn" class="btn btn-secondary">
+                    <i class="material-icons">download</i>
+                    <span>Exportar Reporte</span>
+                </button>
+                
+                <button id="back-btn" class="btn btn-secondary">
+                    <i class="material-icons">arrow_back</i>
+                    <span>Volver</span>
+                </button>
+            </div>
+        </div>
+        
+        <div class="content">
+            <div class="tabs">
+                <div class="tab active" data-tab="summary">Resumen</div>
+                <div class="tab" data-tab="charts">Gráficos</div>
+                <div class="tab" data-tab="data">Datos</div>
+            </div>
+            
+            <div id="report-container" class="report-container">
+                <div id="tab-summary" class="tab-content active">
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <i class="material-icons">chat</i>
+                            <div class="value" id="total-conversations">0</div>
+                            <div class="label">Conversaciones Totales</div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <i class="material-icons">person</i>
+                            <div class="value" id="total-clients">0</div>
+                            <div class="label">Clientes Registrados</div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <i class="material-icons">message</i>
+                            <div class="value" id="total-messages">0</div>
+                            <div class="label">Mensajes Procesados</div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <i class="material-icons">sentiment_satisfied_alt</i>
+                            <div class="value" id="sentiment-score">0%</div>
+                            <div class="label">Sentimiento Positivo</div>
+                        </div>
+                    </div>
+                    
+                    <div class="chart-container">
+                        <canvas id="summary-chart"></canvas>
+                    </div>
+                    
+                    <h3>Resumen de Actividad</h3>
+                    <p id="summary-text">Cargando resumen...</p>
+                </div>
+                
+                <div id="tab-charts" class="tab-content">
+                    <div class="chart-container">
+                        <canvas id="messages-chart"></canvas>
+                    </div>
+                    
+                    <div class="chart-container">
+                        <canvas id="sentiment-chart"></canvas>
+                    </div>
+                    
+                    <div class="chart-container">
+                        <canvas id="clients-chart"></canvas>
+                    </div>
+                </div>
+                
+                <div id="tab-data" class="tab-content">
+                    <h3>Datos Detallados</h3>
+                    <table class="data-table" id="data-table">
+                        <thead>
+                            <tr>
+                                <th>Fecha</th>
+                                <th>Cliente</th>
+                                <th>Mensajes</th>
+                                <th>Sentimiento</th>
+                                <th>Datos Recolectados</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td colspan="5">Cargando datos...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div id="loader" class="loader" style="display: none;">
+                    <div class="loader-spinner"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Obtener referencias a elementos del DOM
+        const startDateInput = document.getElementById('start-date');
+        const endDateInput = document.getElementById('end-date');
+        const reportTypeSelect = document.getElementById('report-type');
+        const generateReportBtn = document.getElementById('generate-report-btn');
+        const exportReportBtn = document.getElementById('export-report-btn');
+        const backBtn = document.getElementById('back-btn');
+        const reportContainer = document.getElementById('report-container');
+        const loader = document.getElementById('loader');
+        const tabs = document.querySelectorAll('.tab');
+        const tabContents = document.querySelectorAll('.tab-content');
+        const appVersion = document.getElementById('app-version');
+        
+        // Estadísticas
+        const totalConversations = document.getElementById('total-conversations');
+        const totalClients = document.getElementById('total-clients');
+        const totalMessages = document.getElementById('total-messages');
+        const sentimentScore = document.getElementById('sentiment-score');
+        const summaryText = document.getElementById('summary-text');
+        const dataTable = document.getElementById('data-table');
+        
+        // Gráficos
+        let summaryChart;
+        let messagesChart;
+        let sentimentChart;
+        let clientsChart;
+        
+        // Electron IPC
+        const { ipcRenderer } = require('electron');
+        
+        // Obtener la versión de la aplicación
+        const { app } = require('electron').remote;
+        appVersion.textContent = `v${app.getVersion()}`;
+        
+        // Inicializar fechas
+        const today = new Date();
+        const oneMonthAgo = new Date();
+        oneMonthAgo.setMonth(today.getMonth() - 1);
+        
+        startDateInput.valueAsDate = oneMonthAgo;
+        endDateInput.valueAsDate = today;
+        
+        // Inicializar gráficos
+        function initCharts() {
+            // Gráfico de resumen
+            const summaryCtx = document.getElementById('summary-chart').getContext('2d');
+            summaryChart = new Chart(summaryCtx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [
+                        {
+                            label: 'Mensajes',
+                            data: [],
+                            borderColor: '#2196F3',
+                            backgroundColor: 'rgba(33, 150, 243, 0.1)',
+                            tension: 0.4,
+                            fill: true
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Actividad Diaria'
+                        }
+                    }
+                }
+            });
+            
+            // Gráfico de mensajes
+            const messagesCtx = document.getElementById('messages-chart').getContext('2d');
+            messagesChart = new Chart(messagesCtx, {
+                type: 'bar',
+                data: {
+                    labels: [],
+                    datasets: [
+                        {
+                            label: 'Mensajes Recibidos',
+                            data: [],
+                            backgroundColor: 'rgba(33, 150, 243, 0.7)'
+                        },
+                        {
+                            label: 'Mensajes Enviados',
+                            data: [],
+                            backgroundColor: 'rgba(76, 175, 80, 0.7)'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Mensajes por Día'
+                        }
+                    }
+                }
+            });
+            
+            // Gráfico de sentimiento
+            const sentimentCtx = document.getElementById('sentiment-chart').getContext('2d');
+            sentimentChart = new Chart(sentimentCtx, {
+                type: 'pie',
+                data: {
+                    labels: ['Positivo', 'Neutral', 'Negativo'],
+                    datasets: [
+                        {
+                            data: [0, 0, 0],
+                            backgroundColor: [
+                                'rgba(76, 175, 80, 0.7)',
+                                'rgba(33, 150, 243, 0.7)',
+                                'rgba(255, 82, 82, 0.7)'
+                            ]
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Análisis de Sentimiento'
+                        }
+                    }
+                }
+            });
+            
+            // Gráfico de clientes
+            const clientsCtx = document.getElementById('clients-chart').getContext('2d');
+            clientsChart = new Chart(clientsCtx, {
+                type: 'bar',
+                data: {
+                    labels: [],
+                    datasets: [
+                        {
+                            label: 'Nuevos Clientes',
+                            data: [],
+                            backgroundColor: 'rgba(156, 39, 176, 0.7)'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Nuevos Clientes por Día'
+                        }
+                    }
+                }
+            });
+        }
+        
+        // Cargar reportes al iniciar
+        document.addEventListener('DOMContentLoaded', () => {
+            initCharts();
+            generateReport();
+        });
+        
+        // Evento de clic en botón de generar reporte
+        generateReportBtn.addEventListener('click', () => {
+            generateReport();
+        });
+        
+        // Evento de clic en botón de exportar reporte
+        exportReportBtn.addEventListener('click', () => {
+            exportReport();
+        });
+        
+        // Evento de clic en botón de volver
+        backBtn.addEventListener('click', () => {
+            ipcRenderer.send('close-reports-window');
+        });
+        
+        // Eventos de clic en tabs
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                // Desactivar todos los tabs
+                tabs.forEach(t => t.classList.remove('active'));
+                tabContents.forEach(c => c.classList.remove('active'));
+                
+                // Activar tab seleccionado
+                tab.classList.add('active');
+                const tabId = `tab-${tab.dataset.tab}`;
+                document.getElementById(tabId).classList.add('active');
+            });
+        });
+        
+        // Función para generar reporte
+        function generateReport() {
+            // Mostrar loader
+            showLoader(true);
+            
+            // Obtener filtros
+            const filters = {
+                startDate: startDateInput.value,
+                endDate: endDateInput.value,
+                reportType: reportTypeSelect.value
+            };
+            
+            // Solicitar datos al proceso principal
+            ipcRenderer.send('generate-report', filters);
+        }
+        
+        // Recibir datos del reporte
+        ipcRenderer.on('report-data', (event, data) => {
+            // Ocultar loader
+            showLoader(false);
+            
+            // Actualizar estadísticas
+            updateStats(data);
+            
+            // Actualizar gráficos
+            updateCharts(data);
+            
+            // Actualizar tabla de datos
+            updateDataTable(data);
+        });
+        
+        // Función para actualizar estadísticas
+        function updateStats(data) {
+            totalConversations.textContent = data.stats.totalConversations || 0;
+            totalClients.textContent = data.stats.totalClients || 0;
+            totalMessages.textContent = data.stats.totalMessages || 0;
+            
+            const positivePercentage = data.stats.sentimentPositive || 0;
+            sentimentScore.textContent = `${positivePercentage}%`;
+            
+            // Actualizar texto de resumen
+            summaryText.textContent = data.summary || 'No hay datos disponibles para el período seleccionado.';
+        }
+        
+        // Función para actualizar gráficos
+        function updateCharts(data) {
+            // Actualizar gráfico de resumen
+            if (data.charts.daily && data.charts.daily.labels) {
+                summaryChart.data.labels = data.charts.daily.labels;
+                summaryChart.data.datasets[0].data = data.charts.daily.messages;
+                summaryChart.update();
+            }
+            
+            // Actualizar gráfico de mensajes
+            if (data.charts.messages && data.charts.messages.labels) {
+                messagesChart.data.labels = data.charts.messages.labels;
+                messagesChart.data.datasets[0].data = data.charts.messages.received;
+                messagesChart.data.datasets[1].data = data.charts.messages.sent;
+                messagesChart.update();
+            }
+            
+            // Actualizar gráfico de sentimiento
+            if (data.charts.sentiment) {
+                sentimentChart.data.datasets[0].data = [
+                    data.charts.sentiment.positive || 0,
+                    data.charts.sentiment.neutral || 0,
+                    data.charts.sentiment.negative || 0
+                ];
+                sentimentChart.update();
+            }
+            
+            // Actualizar gráfico de clientes
+            if (data.charts.clients && data.charts.clients.labels) {
+                clientsChart.data.labels = data.charts.clients.labels;
+                clientsChart.data.datasets[0].data = data.charts.clients.new;
+                clientsChart.update();
+            }
+        }
+        
+        // Función para actualizar tabla de datos
+        function updateDataTable(data) {
+            // Limpiar tabla
+            const tbody = dataTable.querySelector('tbody');
+            tbody.innerHTML = '';
+            
+            // Si no hay datos, mostrar mensaje
+            if (!data.details || data.details.length === 0) {
+                const row = document.createElement('tr');
+                row.innerHTML = '<td colspan="5">No hay datos disponibles para el período seleccionado.</td>';
+                tbody.appendChild(row);
+                return;
+            }
+            
+            // Añadir filas
+            data.details.forEach(item => {
+                const row = document.createElement('tr');
+                
+                // Formatear fecha
+                const date = new Date(item.date);
+                const formattedDate = `${date.toLocaleDateString()}`;
+                
+                // Formatear sentimiento
+                let sentimentClass = '';
+                let sentimentText = 'Neutral';
+                
+                if (item.sentiment > 0.2) {
+                    sentimentClass = 'success';
+                    sentimentText = 'Positivo';
+                } else if (item.sentiment < -0.2) {
+                    sentimentClass = 'danger';
+                    sentimentText = 'Negativo';
+                }
+                
+                // Formatear datos recolectados
+                const collectedData = [];
+                if (item.data) {
+                    if (item.data.nombre) collectedData.push('Nombre');
+                    if (item.data.correo) collectedData.push('Correo');
+                    if (item.data.telefono) collectedData.push('Teléfono');
+                    if (item.data.curso) collectedData.push('Curso');
+                    if (item.data.pago) collectedData.push('Pago');
+                }
+                
+                row.innerHTML = `
+                    <td>${formattedDate}</td>
+                    <td>${item.client || 'Desconocido'}</td>
+                    <td>${item.messages || 0}</td>
+                    <td class="${sentimentClass}">${sentimentText}</td>
+                    <td>${collectedData.join(', ') || 'Ninguno'}</td>
+                `;
+                
+                tbody.appendChild(row);
+            });
+        }
+        
+        // Función para exportar reporte
+        function exportReport() {
+            // Obtener filtros
+            const filters = {
+                startDate: startDateInput.value,
+                endDate: endDateInput.value,
+                reportType: reportTypeSelect.value
+            };
+            
+            // Solicitar exportación al proceso principal
+            ipcRenderer.send('export-report', filters);
+        }
+        
+        // Función para mostrar/ocultar loader
+        function showLoader(show) {
+            loader.style.display = show ? 'flex' : 'none';
+            
+            // Ocultar/mostrar contenido de tabs
+            tabContents.forEach(content => {
+                content.style.display = show ? 'none' : '';
+            });
+            
+            // Restaurar tab activo
+            if (!show) {
+                const activeTab = document.querySelector('.tab.active');
+                if (activeTab) {
+                    const tabId = `tab-${activeTab.dataset.tab}`;
+                    document.getElementById(tabId).style.display = 'block';
+                }
+            }
+        }
+    </script>
+</body>
+</html>

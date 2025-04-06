@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Asistente de Ventas WhatsApp</title>
+    <style>
+        :root {
+            --primary-color: #25D366;
+            --secondary-color: #128C7E;
+            --dark-color: #075E54;
+            --light-color: #DCF8C6;
+            --danger-color: #FF5252;
+            --success-color: #4CAF50;
+            --warning-color: #FFC107;
+            --info-color: #2196F3;
+            --gray-color: #f5f5f5;
+            --dark-gray: #333;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f5f5;
+            color: #333;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .login-container {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            width: 400px;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .logo {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 20px;
+        }
+        
+        h1 {
+            color: var(--dark-color);
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #555;
+        }
+        
+        input[type="text"],
+        input[type="password"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        
+        input[type="text"]:focus,
+        input[type="password"]:focus {
+            border-color: var(--primary-color);
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(37, 211, 102, 0.2);
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 12px 20px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            width: 100%;
+        }
+        
+        .btn:hover {
+            background-color: var(--secondary-color);
+        }
+        
+        .btn:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+        
+        .error-message {
+            color: var(--danger-color);
+            margin-top: 15px;
+            font-size: 14px;
+            display: none;
+        }
+        
+        .success-message {
+            color: var(--success-color);
+            margin-top: 15px;
+            font-size: 14px;
+            display: none;
+        }
+        
+        .license-info {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: var(--light-color);
+            border-radius: 4px;
+            text-align: left;
+            display: none;
+        }
+        
+        .license-info p {
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+        
+        .license-info .status {
+            font-weight: bold;
+        }
+        
+        .license-info .valid {
+            color: var(--success-color);
+        }
+        
+        .license-info .invalid {
+            color: var(--danger-color);
+        }
+        
+        .license-info .offline {
+            color: var(--warning-color);
+        }
+        
+        .footer {
+            margin-top: 30px;
+            font-size: 12px;
+            color: #777;
+        }
+        
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <img src="assets/icon.svg" alt="Logo" class="logo">
+        <h1>Asistente de Ventas WhatsApp</h1>
+        
+        <div id="login-form">
+            <div class="form-group">
+                <label for="activation-code">Código de Activación</label>
+                <input type="text" id="activation-code" placeholder="Ingresa tu código de activación">
+            </div>
+            
+            <button id="activate-btn" class="btn">Activar</button>
+            
+            <div id="error-message" class="error-message"></div>
+            <div id="success-message" class="success-message"></div>
+        </div>
+        
+        <div id="license-info" class="license-info">
+            <p><strong>Estado de Licencia:</strong> <span id="license-status" class="status"></span></p>
+            <p><strong>Cliente:</strong> <span id="client-name"></span></p>
+            <p><strong>Expira:</strong> <span id="expires-at"></span></p>
+            <p><strong>Características:</strong> <span id="features"></span></p>
+            
+            <button id="continue-btn" class="btn" style="margin-top: 15px;">Continuar</button>
+            <button id="deactivate-btn" class="btn" style="margin-top: 10px; background-color: var(--danger-color);">Desactivar Licencia</button>
+        </div>
+        
+        <div class="footer">
+            © 2025 Tu Empresa - Todos los derechos reservados
+        </div>
+    </div>
+    
+    <script>
+        // Obtener referencias a elementos del DOM
+        const activationCodeInput = document.getElementById('activation-code');
+        const activateBtn = document.getElementById('activate-btn');
+        const errorMessage = document.getElementById('error-message');
+        const successMessage = document.getElementById('success-message');
+        const licenseInfo = document.getElementById('license-info');
+        const licenseStatus = document.getElementById('license-status');
+        const clientName = document.getElementById('client-name');
+        const expiresAt = document.getElementById('expires-at');
+        const features = document.getElementById('features');
+        const continueBtn = document.getElementById('continue-btn');
+        const deactivateBtn = document.getElementById('deactivate-btn');
+        const loginForm = document.getElementById('login-form');
+        
+        // Electron IPC
+        const { ipcRenderer } = require('electron');
+        
+        // Verificar estado de licencia al cargar
+        document.addEventListener('DOMContentLoaded', () => {
+            ipcRenderer.send('check-license');
+        });
+        
+        // Manejar respuesta de verificación de licencia
+        ipcRenderer.on('license-status', (event, status) => {
+            if (status.isValid) {
+                // Mostrar información de licencia
+                showLicenseInfo(status);
+            } else {
+                // Mostrar formulario de activación
+                loginForm.style.display = 'block';
+                licenseInfo.style.display = 'none';
+            }
+        });
+        
+        // Evento de clic en botón de activación
+        activateBtn.addEventListener('click', () => {
+            const activationCode = activationCodeInput.value.trim();
+            
+            if (!activationCode) {
+                showError('Por favor, ingresa un código de activación válido');
+                return;
+            }
+            
+            // Mostrar estado de carga
+            activateBtn.disabled = true;
+            activateBtn.innerHTML = '<span class="loading"></span> Activando...';
+            
+            // Enviar código de activación
+            ipcRenderer.send('activate-license', activationCode);
+        });
+        
+        // Manejar respuesta de activación
+        ipcRenderer.on('activation-result', (event, result) => {
+            // Restaurar botón
+            activateBtn.disabled = false;
+            activateBtn.textContent = 'Activar';
+            
+            if (result.success) {
+                // Mostrar mensaje de éxito
+                showSuccess(result.message);
+                
+                // Mostrar información de licencia
+                setTimeout(() => {
+                    showLicenseInfo(result.licenseInfo);
+                }, 1500);
+            } else {
+                // Mostrar mensaje de error
+                showError(result.message);
+            }
+        });
+        
+        // Evento de clic en botón de continuar
+        continueBtn.addEventListener('click', () => {
+            ipcRenderer.send('continue-to-main');
+        });
+        
+        // Evento de clic en botón de desactivación
+        deactivateBtn.addEventListener('click', () => {
+            if (confirm('¿Estás seguro de que deseas desactivar la licencia? Esta acción no se puede deshacer.')) {
+                ipcRenderer.send('deactivate-license');
+            }
+        });
+        
+        // Manejar respuesta de desactivación
+        ipcRenderer.on('deactivation-result', (event, result) => {
+            if (result.success) {
+                // Mostrar formulario de activación
+                loginForm.style.display = 'block';
+                licenseInfo.style.display = 'none';
+                
+                // Limpiar campo de código
+                activationCodeInput.value = '';
+                
+                // Mostrar mensaje de éxito
+                showSuccess(result.message);
+            } else {
+                // Mostrar mensaje de error
+                alert(`Error al desactivar licencia: ${result.message}`);
+            }
+        });
+        
+        // Función para mostrar mensaje de error
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorMessage.style.display = 'block';
+            successMessage.style.display = 'none';
+            
+            // Ocultar después de 5 segundos
+            setTimeout(() => {
+                errorMessage.style.display = 'none';
+            }, 5000);
+        }
+        
+        // Función para mostrar mensaje de éxito
+        function showSuccess(message) {
+            successMessage.textContent = message;
+            successMessage.style.display = 'block';
+            errorMessage.style.display = 'none';
+            
+            // Ocultar después de 5 segundos
+            setTimeout(() => {
+                successMessage.style.display = 'none';
+            }, 5000);
+        }
+        
+        // Función para mostrar información de licencia
+        function showLicenseInfo(info) {
+            // Ocultar formulario y mostrar información
+            loginForm.style.display = 'none';
+            licenseInfo.style.display = 'block';
+            
+            // Actualizar información
+            if (info.offlineMode) {
+                licenseStatus.textContent = 'Activa (Modo Offline)';
+                licenseStatus.className = 'status offline';
+            } else {
+                licenseStatus.textContent = info.isValid ? 'Activa' : 'Inactiva';
+                licenseStatus.className = info.isValid ? 'status valid' : 'status invalid';
+            }
+            
+            clientName.textContent = info.clientName || 'No disponible';
+            
+            // Formatear fecha de expiración
+            if (info.expiresAt) {
+                const expDate = new Date(info.expiresAt);
+                expiresAt.textContent = expDate.toLocaleDateString();
+            } else {
+                expiresAt.textContent = 'No disponible';
+            }
+            
+            // Mostrar características
+            if (info.features && info.features.length > 0) {
+                features.textContent = info.features.join(', ');
+            } else {
+                features.textContent = 'Todas las características';
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Backups - Asistente de Ventas WhatsApp</title>
+    <style>
+        :root {
+            --primary-color: #25D366;
+            --secondary-color: #128C7E;
+            --dark-color: #075E54;
+            --light-color: #DCF8C6;
+            --danger-color: #FF5252;
+            --success-color: #4CAF50;
+            --warning-color: #FFC107;
+            --info-color: #2196F3;
+            --gray-color: #f5f5f5;
+            --dark-gray: #333;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f5f5;
+            color: #333;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        
+        .header {
+            background-color: var(--dark-color);
+            color: white;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .header h1 {
+            font-size: 1.5rem;
+            font-weight: 500;
+        }
+        
+        .main-container {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+        
+        .sidebar {
+            width: 250px;
+            background-color: white;
+            border-right: 1px solid #ddd;
+            display: flex;
+            flex-direction: column;
+            padding: 15px;
+        }
+        
+        .config-section {
+            margin-bottom: 20px;
+        }
+        
+        .config-section h3 {
+            margin-bottom: 10px;
+            color: var(--dark-color);
+        }
+        
+        .config-item {
+            margin-bottom: 15px;
+        }
+        
+        .config-item label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+        
+        .config-item input[type="number"],
+        .config-item input[type="text"],
+        .config-item select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        
+        .checkbox-container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .checkbox-container input[type="checkbox"] {
+            margin-right: 8px;
+        }
+        
+        .button-section {
+            margin-top: auto;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .btn {
+            display: flex;
+            align-items: center;
+            padding: 10px 15px;
+            margin-bottom: 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.2s;
+            text-align: left;
+        }
+        
+        .btn i {
+            margin-right: 10px;
+            font-size: 18px;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--secondary-color);
+        }
+        
+        .btn-secondary {
+            background-color: #f0f0f0;
+            color: #333;
+        }
+        
+        .btn-secondary:hover {
+            background-color: #e0e0e0;
+        }
+        
+        .btn-danger {
+            background-color: var(--danger-color);
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background-color: #d32f2f;
+        }
+        
+        .content {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .backups-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .backup-card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+        
+        .backup-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 10px;
+        }
+        
+        .backup-title {
+            font-weight: 600;
+            font-size: 16px;
+            color: var(--dark-color);
+        }
+        
+        .backup-time {
+            font-size: 12px;
+            color: #777;
+        }
+        
+        .backup-details {
+            margin-bottom: 15px;
+            line-height: 1.4;
+        }
+        
+        .backup-details p {
+            margin-bottom: 5px;
+        }
+        
+        .backup-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .action-btn {
+            padding: 5px 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: background-color 0.2s;
+            display: flex;
+            align-items: center;
+        }
+        
+        .action-btn i {
+            margin-right: 5px;
+            font-size: 16px;
+        }
+        
+        .action-btn.primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .action-btn.primary:hover {
+            background-color: var(--secondary-color);
+        }
+        
+        .action-btn.secondary {
+            background-color: #f0f0f0;
+            color: #333;
+        }
+        
+        .action-btn.secondary:hover {
+            background-color: #e0e0e0;
+        }
+        
+        .action-btn.danger {
+            background-color: var(--danger-color);
+            color: white;
+        }
+        
+        .action-btn.danger:hover {
+            background-color: #d32f2f;
+        }
+        
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: #777;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .empty-state i {
+            font-size: 48px;
+            margin-bottom: 15px;
+            color: #ddd;
+        }
+        
+        .empty-state p {
+            margin-bottom: 20px;
+        }
+        
+        .footer {
+            background-color: white;
+            border-top: 1px solid #ddd;
+            padding: 10px 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            color: #777;
+        }
+        
+        /* Estilos para iconos (usando Material Icons) */
+        .material-icons {
+            font-family: 'Material Icons';
+            font-weight: normal;
+            font-style: normal;
+            font-size: 24px;
+            line-height: 1;
+            letter-spacing: normal;
+            text-transform: none;
+            display: inline-block;
+            white-space: nowrap;
+            word-wrap: normal;
+            direction: ltr;
+            -webkit-font-feature-settings: 'liga';
+            -webkit-font-smoothing: antialiased;
+        }
+        
+        /* Loader */
+        .loader {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+        }
+        
+        .loader-spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-radius: 50%;
+            border-top: 4px solid var(--primary-color);
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal-content {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            padding: 20px;
+            width: 400px;
+            max-width: 90%;
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .modal-header h2 {
+            font-size: 18px;
+            font-weight: 500;
+            color: var(--dark-color);
+        }
+        
+        .modal-close {
+            cursor: pointer;
+            font-size: 20px;
+        }
+        
+        .modal-body {
+            margin-bottom: 20px;
+        }
+        
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+        
+        /* Tooltip */
+        .tooltip {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 200px;
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            border-radius: 4px;
+            padding: 5px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -100px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 12px;
+        }
+        
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+</head>
+<body>
+    <div class="header">
+        <h1>Gestión de Backups - Asistente de Ventas WhatsApp</h1>
+        <div id="app-version">v1.0.0</div>
+    </div>
+    
+    <div class="main-container">
+        <div class="sidebar">
+            <div class="config-section">
+                <h3>Configuración</h3>
+                
+                <div class="config-item">
+                    <div class="checkbox-container">
+                        <input type="checkbox" id="enable-backups" checked>
+                        <label for="enable-backups">Habilitar backups automáticos</label>
+                    </div>
+                </div>
+                
+                <div class="config-item">
+                    <label for="backup-interval">Intervalo (horas)</label>
+                    <input type="number" id="backup-interval" min="1" max="168" value="24">
+                </div>
+                
+                <div class="config-item">
+                    <label for="max-backups">Máximo de backups</label>
+                    <input type="number" id="max-backups" min="1" max="100" value="10">
+                </div>
+                
+                <div class="config-item">
+                    <div class="checkbox-container">
+                        <input type="checkbox" id="backup-on-start" checked>
+                        <label for="backup-on-start">Backup al iniciar</label>
+                    </div>
+                </div>
+                
+                <div class="config-item">
+                    <div class="checkbox-container">
+                        <input type="checkbox" id="backup-on-exit" checked>
+                        <label for="backup-on-exit">Backup al cerrar</label>
+                    </div>
+                </div>
+                
+                <div class="config-item">
+                    <div class="checkbox-container">
+                        <input type="checkbox" id="include-attachments" checked>
+                        <label for="include-attachments">Incluir archivos adjuntos</label>
+                    </div>
+                </div>
+                
+                <div class="config-item">
+                    <label for="compression-level">Nivel de compresión</label>
+                    <select id="compression-level">
+                        <option value="0">Sin compresión</option>
+                        <option value="1">Muy baja</option>
+                        <option value="3">Baja</option>
+                        <option value="6">Media</option>
+                        <option value="9" selected>Alta</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="button-section">
+                <button id="save-config-btn" class="btn btn-primary">
+                    <i class="material-icons">save</i>
+                    <span>Guardar configuración</span>
+                </button>
+                
+                <button id="create-backup-btn" class="btn btn-secondary">
+                    <i class="material-icons">backup</i>
+                    <span>Crear backup ahora</span>
+                </button>
+                
+                <button id="back-btn" class="btn btn-secondary">
+                    <i class="material-icons">arrow_back</i>
+                    <span>Volver</span>
+                </button>
+            </div>
+        </div>
+        
+        <div class="content">
+            <div id="backups-container" class="backups-container">
+                <!-- Los backups se cargarán aquí -->
+                <div class="empty-state">
+                    <i class="material-icons">backup</i>
+                    <p>No hay backups disponibles.</p>
+                    <button id="refresh-btn" class="btn btn-secondary">
+                        <i class="material-icons">refresh</i>
+                        <span>Actualizar</span>
+                    </button>
+                </div>
+            </div>
+            
+            <div id="loader" class="loader" style="display: none;">
+                <div class="loader-spinner"></div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="footer">
+        <div id="backup-count">0 backups</div>
+        <div>Asistente de Ventas WhatsApp</div>
+    </div>
+    
+    <!-- Modal de confirmación -->
+    <div id="confirm-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modal-title">Confirmar acción</h2>
+                <span class="modal-close">&times;</span>
+            </div>
+            <div class="modal-body">
+                <p id="modal-message">¿Estás seguro de que deseas realizar esta acción?</p>
+            </div>
+            <div class="modal-footer">
+                <button id="modal-cancel" class="action-btn secondary">Cancelar</button>
+                <button id="modal-confirm" class="action-btn danger">Confirmar</button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Obtener referencias a elementos del DOM
+        const backupsContainer = document.getElementById('backups-container');
+        const loader = document.getElementById('loader');
+        const backupCount = document.getElementById('backup-count');
+        const appVersion = document.getElementById('app-version');
+        
+        // Configuración
+        const enableBackupsCheckbox = document.getElementById('enable-backups');
+        const backupIntervalInput = document.getElementById('backup-interval');
+        const maxBackupsInput = document.getElementById('max-backups');
+        const backupOnStartCheckbox = document.getElementById('backup-on-start');
+        const backupOnExitCheckbox = document.getElementById('backup-on-exit');
+        const includeAttachmentsCheckbox = document.getElementById('include-attachments');
+        const compressionLevelSelect = document.getElementById('compression-level');
+        
+        // Botones
+        const saveConfigBtn = document.getElementById('save-config-btn');
+        const createBackupBtn = document.getElementById('create-backup-btn');
+        const backBtn = document.getElementById('back-btn');
+        const refreshBtn = document.getElementById('refresh-btn');
+        
+        // Modal
+        const confirmModal = document.getElementById('confirm-modal');
+        const modalTitle = document.getElementById('modal-title');
+        const modalMessage = document.getElementById('modal-message');
+        const modalCancel = document.getElementById('modal-cancel');
+        const modalConfirm = document.getElementById('modal-confirm');
+        const modalClose = document.querySelector('.modal-close');
+        
+        // Electron IPC
+        const { ipcRenderer } = require('electron');
+        
+        // Obtener la versión de la aplicación
+        const { app } = require('electron').remote;
+        appVersion.textContent = `v${app.getVersion()}`;
+        
+        // Cargar backups y configuración al iniciar
+        document.addEventListener('DOMContentLoaded', () => {
+            loadBackups();
+            loadConfig();
+        });
+        
+        // Eventos de botones
+        saveConfigBtn.addEventListener('click', saveConfig);
+        createBackupBtn.addEventListener('click', createBackup);
+        backBtn.addEventListener('click', () => {
+            ipcRenderer.send('close-backups-window');
+        });
+        refreshBtn.addEventListener('click', loadBackups);
+        
+        // Eventos de modal
+        modalClose.addEventListener('click', closeModal);
+        modalCancel.addEventListener('click', closeModal);
+        
+        // Función para cargar backups
+        function loadBackups() {
+            // Mostrar loader
+            showLoader(true);
+            
+            // Solicitar backups al proceso principal
+            ipcRenderer.send('get-backups');
+        }
+        
+        // Recibir backups del proceso principal
+        ipcRenderer.on('backups-list', (event, backups) => {
+            // Ocultar loader
+            showLoader(false);
+            
+            // Actualizar contador
+            backupCount.textContent = `${backups.length} backups`;
+            
+            // Si no hay backups, mostrar estado vacío
+            if (backups.length === 0) {
+                backupsContainer.innerHTML = `
+                    <div class="empty-state">
+                        <i class="material-icons">backup</i>
+                        <p>No hay backups disponibles.</p>
+                        <button id="refresh-btn" class="btn btn-secondary">
+                            <i class="material-icons">refresh</i>
+                            <span>Actualizar</span>
+                        </button>
+                    </div>
+                `;
+                
+                // Añadir evento al botón de actualizar
+                document.getElementById('refresh-btn').addEventListener('click', loadBackups);
+                
+                return;
+            }
+            
+            // Limpiar contenedor
+            backupsContainer.innerHTML = '';
+            
+            // Añadir backups
+            backups.forEach(backup => {
+                const card = createBackupCard(backup);
+                backupsContainer.appendChild(card);
+            });
+        });
+        
+        // Función para crear tarjeta de backup
+        function createBackupCard(backup) {
+            const card = document.createElement('div');
+            card.className = 'backup-card';
+            card.dataset.path = backup.path;
+            
+            // Formatear tamaño
+            const size = formatSize(backup.size);
+            
+            // Crear contenido
+            card.innerHTML = `
+                <div class="backup-header">
+                    <div class="backup-title">${backup.filename}</div>
+                    <div class="backup-time">${backup.formattedDate}</div>
+                </div>
+                <div class="backup-details">
+                    <p><strong>Tamaño:</strong> ${size}</p>
+                </div>
+                <div class="backup-actions">
+                    <button class="action-btn primary restore-btn">
+                        <i class="material-icons">restore</i>
+                        <span>Restaurar</span>
+                    </button>
+                    <button class="action-btn secondary download-btn">
+                        <i class="material-icons">download</i>
+                        <span>Descargar</span>
+                    </button>
+                    <button class="action-btn danger delete-btn">
+                        <i class="material-icons">delete</i>
+                        <span>Eliminar</span>
+                    </button>
+                </div>
+            `;
+            
+            // Añadir eventos a los botones
+            const restoreBtn = card.querySelector('.restore-btn');
+            const downloadBtn = card.querySelector('.download-btn');
+            const deleteBtn = card.querySelector('.delete-btn');
+            
+            restoreBtn.addEventListener('click', () => {
+                showConfirmModal(
+                    'Restaurar backup',
+                    `¿Estás seguro de que deseas restaurar el backup "${backup.filename}"? La aplicación se reiniciará después de la restauración.`,
+                    () => {
+                        restoreBackup(backup.path);
+                    }
+                );
+            });
+            
+            downloadBtn.addEventListener('click', () => {
+                downloadBackup(backup.path);
+            });
+            
+            deleteBtn.addEventListener('click', () => {
+                showConfirmModal(
+                    'Eliminar backup',
+                    `¿Estás seguro de que deseas eliminar el backup "${backup.filename}"? Esta acción no se puede deshacer.`,
+                    () => {
+                        deleteBackup(backup.path);
+                    }
+                );
+            });
+            
+            return card;
+        }
+        
+        // Función para cargar configuración
+        function loadConfig() {
+            ipcRenderer.send('get-backup-config');
+        }
+        
+        // Recibir configuración del proceso principal
+        ipcRenderer.on('backup-config', (event, config) => {
+            // Actualizar UI
+            enableBackupsCheckbox.checked = config.enabled;
+            backupIntervalInput.value = config.interval;
+            maxBackupsInput.value = config.maxBackups;
+            backupOnStartCheckbox.checked = config.backupOnStart;
+            backupOnExitCheckbox.checked = config.backupOnExit;
+            includeAttachmentsCheckbox.checked = config.includeAttachments;
+            compressionLevelSelect.value = config.compressionLevel.toString();
+        });
+        
+        // Función para guardar configuración
+        function saveConfig() {
+            const config = {
+                enabled: enableBackupsCheckbox.checked,
+                interval: parseInt(backupIntervalInput.value),
+                maxBackups: parseInt(maxBackupsInput.value),
+                backupOnStart: backupOnStartCheckbox.checked,
+                backupOnExit: backupOnExitCheckbox.checked,
+                includeAttachments: includeAttachmentsCheckbox.checked,
+                compressionLevel: parseInt(compressionLevelSelect.value)
+            };
+            
+            ipcRenderer.send('update-backup-config', config);
+        }
+        
+        // Función para crear backup
+        function createBackup() {
+            // Mostrar loader
+            showLoader(true);
+            
+            // Solicitar creación de backup
+            ipcRenderer.send('create-backup', 'Backup manual desde la interfaz');
+        }
+        
+        // Función para restaurar backup
+        function restoreBackup(backupPath) {
+            // Mostrar loader
+            showLoader(true);
+            
+            // Solicitar restauración de backup
+            ipcRenderer.send('restore-backup', backupPath);
+        }
+        
+        // Función para descargar backup
+        function downloadBackup(backupPath) {
+            ipcRenderer.send('download-backup', backupPath);
+        }
+        
+        // Función para eliminar backup
+        function deleteBackup(backupPath) {
+            // Mostrar loader
+            showLoader(true);
+            
+            // Solicitar eliminación de backup
+            ipcRenderer.send('delete-backup', backupPath);
+        }
+        
+        // Recibir resultado de operación
+        ipcRenderer.on('backup-operation-result', (event, result) => {
+            // Ocultar loader
+            showLoader(false);
+            
+            // Si la operación fue exitosa, recargar backups
+            if (result.success) {
+                loadBackups();
+            }
+            
+            // Mostrar mensaje
+            alert(result.message);
+        });
+        
+        // Función para mostrar/ocultar loader
+        function showLoader(show) {
+            loader.style.display = show ? 'flex' : 'none';
+            backupsContainer.style.display = show ? 'none' : 'flex';
+        }
+        
+        // Función para mostrar modal de confirmación
+        function showConfirmModal(title, message, confirmCallback) {
+            modalTitle.textContent = title;
+            modalMessage.textContent = message;
+            
+            // Configurar callback de confirmación
+            modalConfirm.onclick = () => {
+                closeModal();
+                confirmCallback();
+            };
+            
+            // Mostrar modal
+            confirmModal.style.display = 'flex';
+        }
+        
+        // Función para cerrar modal
+        function closeModal() {
+            confirmModal.style.display = 'none';
+        }
+        
+        // Función para formatear tamaño
+        function formatSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+    </script>
+</body>
+</html>

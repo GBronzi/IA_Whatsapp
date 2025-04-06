@@ -1,0 +1,106 @@
+# Dependencias
+node_modules/
+npm-debug.log
+yarn-debug.log
+yarn-error.log
+package-lock.json
+yarn.lock
+
+# Archivos de entorno y configuración
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Archivos de credenciales
+credentials.json
+*-credentials.json
+*-key.json
+*.pem
+*.key
+*.p12
+
+# Base de datos
+*.sqlite
+*.sqlite3
+*.db
+
+# Archivos de respaldo
+*.bak
+*.backup
+*.old
+*.tmp
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Directorios de construcción
+dist/
+build/
+out/
+.next/
+.nuxt/
+.cache/
+
+# Archivos de sistema
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Archivos de IDE y editores
+.idea/
+.vscode/
+*.swp
+*.swo
+*.sublime-workspace
+*.sublime-project
+.project
+.classpath
+.settings/
+*.iml
+*.ipr
+*.iws
+
+# Archivos específicos de la aplicación
+whatsapp-session/
+whatsapp-session.json
+whatsapp-auth.json
+tokens.json
+config.local.js
+config.prod.js
+config.dev.js
+
+# Archivos específicos de este proyecto
+credentials.json
+bitrix24-cache.json
+crm-config.json
+chat_histories_backup.json
+sessions/
+sessions/*
+logs/
+logs/*
+
+# Archivos de prueba
+coverage/
+.nyc_output/
+test-results/
+playwright-report/
+playwright/.cache/
+
+# Archivos temporales
+temp/
+tmp/
+.temp/
+.tmp/
+
+# Archivos de Electron
+electron-builder.yml
+electron-builder-*.yml
+electron-builder-*.json
+electron-builder.env
+electron-builder.env.*

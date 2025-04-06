@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notificaciones - Asistente de Ventas WhatsApp</title>
+    <style>
+        :root {
+            --primary-color: #25D366;
+            --secondary-color: #128C7E;
+            --dark-color: #075E54;
+            --light-color: #DCF8C6;
+            --danger-color: #FF5252;
+            --success-color: #4CAF50;
+            --warning-color: #FFC107;
+            --info-color: #2196F3;
+            --gray-color: #f5f5f5;
+            --dark-gray: #333;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f5f5;
+            color: #333;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        
+        .header {
+            background-color: var(--dark-color);
+            color: white;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .header h1 {
+            font-size: 1.5rem;
+            font-weight: 500;
+        }
+        
+        .main-container {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+        
+        .sidebar {
+            width: 250px;
+            background-color: white;
+            border-right: 1px solid #ddd;
+            display: flex;
+            flex-direction: column;
+            padding: 15px;
+        }
+        
+        .filter-section {
+            margin-bottom: 20px;
+        }
+        
+        .filter-section h3 {
+            margin-bottom: 10px;
+            color: var(--dark-color);
+        }
+        
+        .filter-item {
+            margin-bottom: 10px;
+        }
+        
+        .checkbox-container {
+            display: flex;
+            align-items: center;
+        }
+        
+        .checkbox-container input[type="checkbox"] {
+            margin-right: 8px;
+        }
+        
+        .button-section {
+            margin-top: auto;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .btn {
+            display: flex;
+            align-items: center;
+            padding: 10px 15px;
+            margin-bottom: 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.2s;
+            text-align: left;
+        }
+        
+        .btn i {
+            margin-right: 10px;
+            font-size: 18px;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--secondary-color);
+        }
+        
+        .btn-secondary {
+            background-color: #f0f0f0;
+            color: #333;
+        }
+        
+        .btn-secondary:hover {
+            background-color: #e0e0e0;
+        }
+        
+        .content {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .notifications-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .notification-card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            border-left: 5px solid var(--info-color);
+        }
+        
+        .notification-card.high {
+            border-left-color: var(--danger-color);
+            background-color: rgba(255, 82, 82, 0.05);
+        }
+        
+        .notification-card.medium {
+            border-left-color: var(--warning-color);
+            background-color: rgba(255, 193, 7, 0.05);
+        }
+        
+        .notification-card.low {
+            border-left-color: var(--info-color);
+            background-color: rgba(33, 150, 243, 0.05);
+        }
+        
+        .notification-card.read {
+            opacity: 0.7;
+        }
+        
+        .notification-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 10px;
+        }
+        
+        .notification-title {
+            font-weight: 600;
+            font-size: 16px;
+            color: var(--dark-color);
+        }
+        
+        .notification-time {
+            font-size: 12px;
+            color: #777;
+        }
+        
+        .notification-body {
+            margin-bottom: 15px;
+            line-height: 1.4;
+        }
+        
+        .notification-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .notification-meta {
+            font-size: 12px;
+            color: #777;
+        }
+        
+        .notification-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .action-btn {
+            padding: 5px 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: background-color 0.2s;
+        }
+        
+        .action-btn.primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .action-btn.primary:hover {
+            background-color: var(--secondary-color);
+        }
+        
+        .action-btn.secondary {
+            background-color: #f0f0f0;
+            color: #333;
+        }
+        
+        .action-btn.secondary:hover {
+            background-color: #e0e0e0;
+        }
+        
+        .notification-badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            padding: 3px 8px;
+            border-radius: 10px;
+            font-size: 10px;
+            font-weight: bold;
+            color: white;
+        }
+        
+        .notification-badge.high {
+            background-color: var(--danger-color);
+        }
+        
+        .notification-badge.medium {
+            background-color: var(--warning-color);
+            color: #333;
+        }
+        
+        .notification-badge.low {
+            background-color: var(--info-color);
+        }
+        
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: #777;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .empty-state i {
+            font-size: 48px;
+            margin-bottom: 15px;
+            color: #ddd;
+        }
+        
+        .empty-state p {
+            margin-bottom: 20px;
+        }
+        
+        .footer {
+            background-color: white;
+            border-top: 1px solid #ddd;
+            padding: 10px 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            color: #777;
+        }
+        
+        /* Estilos para iconos (usando Material Icons) */
+        .material-icons {
+            font-family: 'Material Icons';
+            font-weight: normal;
+            font-style: normal;
+            font-size: 24px;
+            line-height: 1;
+            letter-spacing: normal;
+            text-transform: none;
+            display: inline-block;
+            white-space: nowrap;
+            word-wrap: normal;
+            direction: ltr;
+            -webkit-font-feature-settings: 'liga';
+            -webkit-font-smoothing: antialiased;
+        }
+        
+        /* Configuración de notificaciones */
+        .config-section {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+        }
+        
+        .config-item {
+            margin-bottom: 15px;
+        }
+        
+        .config-item label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+        
+        .config-item select,
+        .config-item input[type="range"] {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        
+        .volume-control {
+            display: flex;
+            align-items: center;
+        }
+        
+        .volume-control input[type="range"] {
+            flex: 1;
+            margin-right: 10px;
+        }
+        
+        .volume-value {
+            width: 40px;
+            text-align: center;
+        }
+        
+        /* Loader */
+        .loader {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+        }
+        
+        .loader-spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-radius: 50%;
+            border-top: 4px solid var(--primary-color);
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+</head>
+<body>
+    <div class="header">
+        <h1>Notificaciones - Asistente de Ventas WhatsApp</h1>
+        <div id="app-version">v1.0.0</div>
+    </div>
+    
+    <div class="main-container">
+        <div class="sidebar">
+            <div class="filter-section">
+                <h3>Filtros</h3>
+                
+                <div class="filter-item">
+                    <h4>Prioridad</h4>
+                    <div class="checkbox-container">
+                        <input type="checkbox" id="high-priority" checked>
+                        <label for="high-priority">Alta</label>
+                    </div>
+                    <div class="checkbox-container">
+                        <input type="checkbox" id="medium-priority" checked>
+                        <label for="medium-priority">Media</label>
+                    </div>
+                    <div class="checkbox-container">
+                        <input type="checkbox" id="low-priority" checked>
+                        <label for="low-priority">Baja</label>
+                    </div>
+                </div>
+                
+                <div class="filter-item">
+                    <h4>Estado</h4>
+                    <div class="checkbox-container">
+                        <input type="checkbox" id="unread-only">
+                        <label for="unread-only">Solo no leídas</label>
+                    </div>
+                    <div class="checkbox-container">
+                        <input type="checkbox" id="human-attention" checked>
+                        <label for="human-attention">Requieren atención humana</label>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="config-section">
+                <h3>Configuración</h3>
+                
+                <div class="config-item">
+                    <div class="checkbox-container">
+                        <input type="checkbox" id="enable-sounds" checked>
+                        <label for="enable-sounds">Sonidos</label>
+                    </div>
+                </div>
+                
+                <div class="config-item">
+                    <div class="checkbox-container">
+                        <input type="checkbox" id="enable-desktop-notifications" checked>
+                        <label for="enable-desktop-notifications">Notificaciones de escritorio</label>
+                    </div>
+                </div>
+                
+                <div class="config-item">
+                    <label for="sound-volume">Volumen</label>
+                    <div class="volume-control">
+                        <input type="range" id="sound-volume" min="0" max="1" step="0.1" value="0.8">
+                        <span class="volume-value" id="volume-value">80%</span>
+                    </div>
+                </div>
+                
+                <div class="config-item">
+                    <label for="default-sound">Sonido predeterminado</label>
+                    <select id="default-sound">
+                        <option value="alert.mp3">Alerta</option>
+                        <option value="notification.mp3">Notificación</option>
+                        <option value="info.mp3">Info</option>
+                        <option value="urgent.mp3">Urgente</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="button-section">
+                <button id="mark-all-read-btn" class="btn btn-primary">
+                    <i class="material-icons">done_all</i>
+                    <span>Marcar todas como leídas</span>
+                </button>
+                
+                <button id="test-notification-btn" class="btn btn-secondary">
+                    <i class="material-icons">notifications</i>
+                    <span>Probar notificación</span>
+                </button>
+                
+                <button id="back-btn" class="btn btn-secondary">
+                    <i class="material-icons">arrow_back</i>
+                    <span>Volver</span>
+                </button>
+            </div>
+        </div>
+        
+        <div class="content">
+            <div id="notifications-container" class="notifications-container">
+                <!-- Las notificaciones se cargarán aquí -->
+                <div class="empty-state">
+                    <i class="material-icons">notifications_off</i>
+                    <p>No hay notificaciones para mostrar.</p>
+                    <button id="refresh-btn" class="btn btn-secondary">
+                        <i class="material-icons">refresh</i>
+                        <span>Actualizar</span>
+                    </button>
+                </div>
+            </div>
+            
+            <div id="loader" class="loader" style="display: none;">
+                <div class="loader-spinner"></div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="footer">
+        <div id="notification-count">0 notificaciones</div>
+        <div>Asistente de Ventas WhatsApp</div>
+    </div>
+    
+    <script>
+        // Obtener referencias a elementos del DOM
+        const notificationsContainer = document.getElementById('notifications-container');
+        const loader = document.getElementById('loader');
+        const notificationCount = document.getElementById('notification-count');
+        const appVersion = document.getElementById('app-version');
+        
+        // Filtros
+        const highPriorityCheckbox = document.getElementById('high-priority');
+        const mediumPriorityCheckbox = document.getElementById('medium-priority');
+        const lowPriorityCheckbox = document.getElementById('low-priority');
+        const unreadOnlyCheckbox = document.getElementById('unread-only');
+        const humanAttentionCheckbox = document.getElementById('human-attention');
+        
+        // Configuración
+        const enableSoundsCheckbox = document.getElementById('enable-sounds');
+        const enableDesktopNotificationsCheckbox = document.getElementById('enable-desktop-notifications');
+        const soundVolumeInput = document.getElementById('sound-volume');
+        const volumeValueSpan = document.getElementById('volume-value');
+        const defaultSoundSelect = document.getElementById('default-sound');
+        
+        // Botones
+        const markAllReadBtn = document.getElementById('mark-all-read-btn');
+        const testNotificationBtn = document.getElementById('test-notification-btn');
+        const backBtn = document.getElementById('back-btn');
+        const refreshBtn = document.getElementById('refresh-btn');
+        
+        // Electron IPC
+        const { ipcRenderer } = require('electron');
+        
+        // Obtener la versión de la aplicación
+        const { app } = require('electron').remote;
+        appVersion.textContent = `v${app.getVersion()}`;
+        
+        // Cargar notificaciones al iniciar
+        document.addEventListener('DOMContentLoaded', () => {
+            loadNotifications();
+            loadConfig();
+        });
+        
+        // Eventos de filtros
+        highPriorityCheckbox.addEventListener('change', loadNotifications);
+        mediumPriorityCheckbox.addEventListener('change', loadNotifications);
+        lowPriorityCheckbox.addEventListener('change', loadNotifications);
+        unreadOnlyCheckbox.addEventListener('change', loadNotifications);
+        humanAttentionCheckbox.addEventListener('change', loadNotifications);
+        
+        // Eventos de configuración
+        enableSoundsCheckbox.addEventListener('change', updateConfig);
+        enableDesktopNotificationsCheckbox.addEventListener('change', updateConfig);
+        soundVolumeInput.addEventListener('input', updateVolumeValue);
+        soundVolumeInput.addEventListener('change', updateConfig);
+        defaultSoundSelect.addEventListener('change', updateConfig);
+        
+        // Eventos de botones
+        markAllReadBtn.addEventListener('click', markAllAsRead);
+        testNotificationBtn.addEventListener('click', testNotification);
+        backBtn.addEventListener('click', () => {
+            ipcRenderer.send('close-notifications-window');
+        });
+        refreshBtn.addEventListener('click', loadNotifications);
+        
+        // Función para cargar notificaciones
+        function loadNotifications() {
+            // Mostrar loader
+            showLoader(true);
+            
+            // Obtener filtros
+            const filters = {
+                priority: [],
+                onlyUnread: unreadOnlyCheckbox.checked,
+                requiresHumanAttention: humanAttentionCheckbox.checked
+            };
+            
+            if (highPriorityCheckbox.checked) filters.priority.push('high');
+            if (mediumPriorityCheckbox.checked) filters.priority.push('medium');
+            if (lowPriorityCheckbox.checked) filters.priority.push('low');
+            
+            // Solicitar notificaciones al proceso principal
+            ipcRenderer.send('get-notifications', filters);
+        }
+        
+        // Recibir notificaciones del proceso principal
+        ipcRenderer.on('notifications-data', (event, notifications) => {
+            // Ocultar loader
+            showLoader(false);
+            
+            // Actualizar contador
+            notificationCount.textContent = `${notifications.length} notificaciones`;
+            
+            // Si no hay notificaciones, mostrar estado vacío
+            if (notifications.length === 0) {
+                notificationsContainer.innerHTML = `
+                    <div class="empty-state">
+                        <i class="material-icons">notifications_off</i>
+                        <p>No hay notificaciones para mostrar.</p>
+                        <button id="refresh-btn" class="btn btn-secondary">
+                            <i class="material-icons">refresh</i>
+                            <span>Actualizar</span>
+                        </button>
+                    </div>
+                `;
+                
+                // Añadir evento al botón de actualizar
+                document.getElementById('refresh-btn').addEventListener('click', loadNotifications);
+                
+                return;
+            }
+            
+            // Limpiar contenedor
+            notificationsContainer.innerHTML = '';
+            
+            // Añadir notificaciones
+            notifications.forEach(notification => {
+                const card = createNotificationCard(notification);
+                notificationsContainer.appendChild(card);
+            });
+        });
+        
+        // Función para crear tarjeta de notificación
+        function createNotificationCard(notification) {
+            const card = document.createElement('div');
+            card.className = `notification-card ${notification.priority} ${notification.read ? 'read' : ''}`;
+            card.dataset.id = notification.id;
+            
+            // Formatear fecha
+            const date = new Date(notification.timestamp);
+            const formattedDate = `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
+            
+            // Formatear prioridad
+            let priorityText = 'Normal';
+            if (notification.priority === 'high') priorityText = 'Alta';
+            else if (notification.priority === 'medium') priorityText = 'Media';
+            else if (notification.priority === 'low') priorityText = 'Baja';
+            
+            // Crear contenido
+            card.innerHTML = `
+                <div class="notification-header">
+                    <div class="notification-title">${notification.title}</div>
+                    <div class="notification-time">${formattedDate}</div>
+                </div>
+                <div class="notification-body">${notification.body}</div>
+                <div class="notification-footer">
+                    <div class="notification-meta">
+                        ${notification.clientName ? `Cliente: ${notification.clientName}` : ''}
+                        ${notification.chatId ? ` | Chat: ${notification.chatId.split('@')[0]}` : ''}
+                    </div>
+                    <div class="notification-actions">
+                        ${notification.read ? '' : '<button class="action-btn secondary mark-read-btn">Marcar como leída</button>'}
+                        ${notification.actions.map(action => `<button class="action-btn primary action-${action.id}-btn">${action.label}</button>`).join('')}
+                    </div>
+                </div>
+                <div class="notification-badge ${notification.priority}">${priorityText}</div>
+            `;
+            
+            // Añadir eventos a los botones
+            if (!notification.read) {
+                const markReadBtn = card.querySelector('.mark-read-btn');
+                if (markReadBtn) {
+                    markReadBtn.addEventListener('click', () => {
+                        markAsRead(notification.id);
+                    });
+                }
+            }
+            
+            // Añadir eventos a los botones de acción
+            notification.actions.forEach(action => {
+                const actionBtn = card.querySelector(`.action-${action.id}-btn`);
+                if (actionBtn) {
+                    actionBtn.addEventListener('click', () => {
+                        handleAction(action.id, notification);
+                    });
+                }
+            });
+            
+            return card;
+        }
+        
+        // Función para marcar notificación como leída
+        function markAsRead(notificationId) {
+            ipcRenderer.send('mark-notification-read', notificationId);
+            
+            // Actualizar UI
+            const card = document.querySelector(`.notification-card[data-id="${notificationId}"]`);
+            if (card) {
+                card.classList.add('read');
+                const markReadBtn = card.querySelector('.mark-read-btn');
+                if (markReadBtn) {
+                    markReadBtn.remove();
+                }
+            }
+        }
+        
+        // Función para marcar todas como leídas
+        function markAllAsRead() {
+            ipcRenderer.send('mark-all-notifications-read');
+            
+            // Actualizar UI
+            const cards = document.querySelectorAll('.notification-card:not(.read)');
+            cards.forEach(card => {
+                card.classList.add('read');
+                const markReadBtn = card.querySelector('.mark-read-btn');
+                if (markReadBtn) {
+                    markReadBtn.remove();
+                }
+            });
+        }
+        
+        // Función para manejar acciones
+        function handleAction(actionId, notification) {
+            ipcRenderer.send('notification-action', { actionId, notification });
+        }
+        
+        // Función para probar notificación
+        function testNotification() {
+            ipcRenderer.send('test-notification');
+        }
+        
+        // Función para cargar configuración
+        function loadConfig() {
+            ipcRenderer.send('get-notification-config');
+        }
+        
+        // Recibir configuración del proceso principal
+        ipcRenderer.on('notification-config', (event, config) => {
+            // Actualizar UI
+            enableSoundsCheckbox.checked = config.enableSounds;
+            enableDesktopNotificationsCheckbox.checked = config.enableDesktopNotifications;
+            soundVolumeInput.value = config.soundVolume;
+            updateVolumeValue();
+            defaultSoundSelect.value = config.defaultSound;
+        });
+        
+        // Función para actualizar configuración
+        function updateConfig() {
+            const config = {
+                enableSounds: enableSoundsCheckbox.checked,
+                enableDesktopNotifications: enableDesktopNotificationsCheckbox.checked,
+                soundVolume: parseFloat(soundVolumeInput.value),
+                defaultSound: defaultSoundSelect.value
+            };
+            
+            ipcRenderer.send('update-notification-config', config);
+        }
+        
+        // Función para actualizar valor de volumen
+        function updateVolumeValue() {
+            const volume = Math.round(soundVolumeInput.value * 100);
+            volumeValueSpan.textContent = `${volume}%`;
+        }
+        
+        // Función para mostrar/ocultar loader
+        function showLoader(show) {
+            loader.style.display = show ? 'flex' : 'none';
+            notificationsContainer.style.display = show ? 'none' : 'flex';
+        }
+    </script>
+</body>
+</html>
