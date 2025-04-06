@@ -1,8 +1,7 @@
 /**
- * crm-manager.js - Módulo para gestionar diferentes integraciones de CRM
+ * crm-manager.js - Módulo para gestionar la integración con Google Sheets
  *
- * Este módulo proporciona una interfaz unificada para interactuar con diferentes CRMs,
- * permitiendo elegir entre Google Sheets (por defecto) y Bitrix24 (opcional).
+ * Este módulo proporciona una interfaz para interactuar con Google Sheets como CRM.
  */
 
 const fs = require('fs').promises;
@@ -11,25 +10,13 @@ const logger = require('./logger');
 const { GoogleSpreadsheet } = require('google-spreadsheet');
 const { JWT } = require('google-auth-library');
 
-// Importar integraciones de CRM
-let bitrix24Integration;
-try {
-    bitrix24Integration = require('./bitrix24-integration');
-} catch (error) {
-    logger.warn(`CRM Manager: Bitrix24 no disponible: ${error.message}`);
-}
-
 // Configuración por defecto
 const DEFAULT_CONFIG = {
-    activeCrm: 'googleSheets', // 'googleSheets', 'bitrix24', 'none'
     googleSheets: {
-        docId: process.env.GOOGLE_SHEET_ID || '',
+        docId: process.env.SPREADSHEET_ID || '',
         credentials: null,
-        sheetIndex: 0
-    },
-    bitrix24: {
-        webhook: process.env.BITRIX24_WEBHOOK || '',
-        enabled: false
+        sheetIndex: 0,
+        dataSheetIndex: 1 // Índice de la hoja de datos de clientes (segunda hoja)
     },
     configFile: path.join(__dirname, 'crm-config.json')
 };
@@ -37,10 +24,9 @@ const DEFAULT_CONFIG = {
 // Estado del CRM
 let crmConfig = { ...DEFAULT_CONFIG };
 let googleSheet = null;
-let bitrix24 = null;
 
 /**
- * Inicializa el gestor de CRM
+ * Inicializa el gestor de CRM con Google Sheets
  * @param {Object} config - Configuración personalizada
  * @returns {Promise<Object>} - Instancia del gestor de CRM
  */
@@ -51,10 +37,9 @@ async function initialize(config = {}) {
         logger.info(`CRM Manager: SPREADSHEET_ID en .env: ${process.env.SPREADSHEET_ID}`);
 
         // Combinar configuración por defecto con la personalizada
-        crmConfig = { ...DEFAULT_CONFIG, ...config };
-
-        // Depuración: Mostrar la configuración combinada
-        logger.info(`CRM Manager: Configuración combinada: docId=${crmConfig.googleSheets.docId}`);
+        if (config.googleSheets) {
+            crmConfig.googleSheets = { ...DEFAULT_CONFIG.googleSheets, ...config.googleSheets };
+        }
 
         // Asegurarse de que se use SPREADSHEET_ID si está disponible
         if (process.env.SPREADSHEET_ID && (!crmConfig.googleSheets.docId || crmConfig.googleSheets.docId === '')) {
@@ -65,30 +50,13 @@ async function initialize(config = {}) {
         // Cargar configuración desde archivo
         await loadConfig();
 
-        // Inicializar CRMs según configuración
-        if (crmConfig.activeCrm === 'googleSheets' || crmConfig.activeCrm === 'both') {
-            await initializeGoogleSheets();
-        }
+        // Inicializar Google Sheets
+        await initializeGoogleSheets();
 
-        if ((crmConfig.activeCrm === 'bitrix24' || crmConfig.activeCrm === 'both') && crmConfig.bitrix24.enabled) {
-            await initializeBitrix24();
-        }
-
-        logger.info(`CRM Manager: Inicializado con CRM activo: ${crmConfig.activeCrm}`);
-
-        return {
-            syncClientData,
-            getProducts,
-            getProductInfo,
-            getFormattedProductsInfo,
-            saveMessageToSheet,
-            getCrmStatus,
-            setCrmType,
-            getAvailableCrms
-        };
+        return module.exports;
     } catch (error) {
         logger.error(`CRM Manager: Error al inicializar: ${error.message}`);
-        throw error;
+        return module.exports;
     }
 }
 
@@ -268,34 +236,6 @@ async function initializeGoogleSheets() {
 }
 
 /**
- * Inicializa la integración con Bitrix24
- * @returns {Promise<void>}
- */
-async function initializeBitrix24() {
-    try {
-        if (!bitrix24Integration) {
-            logger.warn('CRM Manager: Módulo de Bitrix24 no disponible');
-            return;
-        }
-
-        if (!crmConfig.bitrix24.webhook) {
-            logger.warn('CRM Manager: No se ha configurado el webhook de Bitrix24');
-            return;
-        }
-
-        // Inicializar Bitrix24
-        bitrix24 = bitrix24Integration.initialize({
-            webhook: crmConfig.bitrix24.webhook
-        });
-
-        logger.info('CRM Manager: Bitrix24 inicializado correctamente');
-    } catch (error) {
-        logger.error(`CRM Manager: Error al inicializar Bitrix24: ${error.message}`);
-        bitrix24 = null;
-    }
-}
-
-/**
  * Guarda un mensaje en Google Sheets
  * @param {Object} data - Datos del mensaje
  * @returns {Promise<boolean>} - true si se guardó correctamente
@@ -366,7 +306,7 @@ async function saveMessageToSheet(data) {
 }
 
 /**
- * Sincroniza los datos de un cliente con el CRM activo
+ * Sincroniza los datos de un cliente con Google Sheets
  * @param {Object} clientData - Datos del cliente
  * @returns {Promise<Object>} - Resultado de la sincronización
  */
@@ -374,45 +314,25 @@ async function syncClientData(clientData) {
     try {
         const results = {
             success: false,
-            googleSheets: null,
-            bitrix24: null
+            googleSheets: null
         };
 
         // Sincronizar con Google Sheets
-        if (crmConfig.activeCrm === 'googleSheets' || crmConfig.activeCrm === 'both') {
-            try {
-                const sheetResult = await saveClientToSheet(clientData);
-                results.googleSheets = {
-                    success: sheetResult,
-                    message: sheetResult ? 'Datos guardados en Google Sheets' : 'Error al guardar en Google Sheets'
-                };
+        try {
+            const sheetResult = await saveClientToSheet(clientData);
+            results.googleSheets = {
+                success: sheetResult,
+                message: sheetResult ? 'Datos guardados en Google Sheets' : 'Error al guardar en Google Sheets'
+            };
 
-                if (sheetResult) {
-                    results.success = true;
-                }
-            } catch (error) {
-                results.googleSheets = {
-                    success: false,
-                    message: `Error: ${error.message}`
-                };
+            if (sheetResult) {
+                results.success = true;
             }
-        }
-
-        // Sincronizar con Bitrix24
-        if ((crmConfig.activeCrm === 'bitrix24' || crmConfig.activeCrm === 'both') && bitrix24 && crmConfig.bitrix24.enabled) {
-            try {
-                const bitrixResult = await bitrix24.syncClientData(clientData);
-                results.bitrix24 = bitrixResult;
-
-                if (bitrixResult.success) {
-                    results.success = true;
-                }
-            } catch (error) {
-                results.bitrix24 = {
-                    success: false,
-                    error: error.message
-                };
-            }
+        } catch (error) {
+            results.googleSheets = {
+                success: false,
+                message: `Error: ${error.message}`
+            };
         }
 
         return results;
@@ -775,46 +695,22 @@ async function testGoogleSheetsCredentials() {
 }
 
 /**
- * Prueba la conexión con los CRMs configurados
+ * Prueba la conexión con Google Sheets
  * @returns {Promise<Object>} - Resultado de la prueba
  */
 async function testConnection() {
     const result = {
         success: false,
         message: '',
-        googleSheets: null,
-        bitrix24: null
+        googleSheets: null
     };
 
-    // Probar Google Sheets si está habilitado
-    if (crmConfig.activeCrm === 'googleSheets' || crmConfig.activeCrm === 'both') {
-        result.googleSheets = await testGoogleSheetsCredentials();
-    }
-
-    // Probar Bitrix24 si está habilitado
-    if ((crmConfig.activeCrm === 'bitrix24' || crmConfig.activeCrm === 'both') && crmConfig.bitrix24.enabled) {
-        // Implementar prueba de Bitrix24 si es necesario
-        result.bitrix24 = {
-            success: bitrix24 !== null,
-            message: bitrix24 !== null ? 'Conexión exitosa con Bitrix24' : 'No se pudo conectar con Bitrix24',
-            details: crmConfig.bitrix24.webhook ? 'Webhook configurado' : 'Webhook no configurado'
-        };
-    }
+    // Probar Google Sheets
+    result.googleSheets = await testGoogleSheetsCredentials();
 
     // Determinar resultado general
-    if (crmConfig.activeCrm === 'googleSheets') {
-        result.success = result.googleSheets?.success || false;
-        result.message = result.googleSheets?.message || 'Error al conectar con Google Sheets';
-    } else if (crmConfig.activeCrm === 'bitrix24') {
-        result.success = result.bitrix24?.success || false;
-        result.message = result.bitrix24?.message || 'Error al conectar con Bitrix24';
-    } else if (crmConfig.activeCrm === 'both') {
-        result.success = (result.googleSheets?.success || false) && (result.bitrix24?.success || false);
-        result.message = result.success ? 'Conexión exitosa con ambos CRMs' : 'Error al conectar con uno o ambos CRMs';
-    } else {
-        result.success = true;
-        result.message = 'No hay CRM configurado';
-    }
+    result.success = result.googleSheets?.success || false;
+    result.message = result.googleSheets?.message || 'Error al conectar con Google Sheets';
 
     return result;
 }
@@ -825,58 +721,33 @@ async function testConnection() {
  */
 function getCrmStatus() {
     return {
-        activeCrm: crmConfig.activeCrm,
         googleSheets: {
-            enabled: crmConfig.activeCrm === 'googleSheets' || crmConfig.activeCrm === 'both',
             initialized: googleSheet !== null,
             docId: crmConfig.googleSheets.docId,
             connected: googleSheet !== null,
             message: googleSheet !== null ? 'Conectado' : 'No conectado'
-        },
-        bitrix24: {
-            enabled: crmConfig.bitrix24.enabled && (crmConfig.activeCrm === 'bitrix24' || crmConfig.activeCrm === 'both'),
-            initialized: bitrix24 !== null,
-            webhook: crmConfig.bitrix24.webhook ? '********' : '',
-            connected: bitrix24 !== null,
-            message: bitrix24 !== null ? 'Conectado' : 'No conectado'
         }
     };
 }
 
 /**
- * Establece el tipo de CRM activo
- * @param {string} crmType - Tipo de CRM ('googleSheets', 'bitrix24', 'both', 'none')
- * @returns {Promise<boolean>} - true si se cambió correctamente
+ * Establece Google Sheets como CRM activo
+ * @returns {Promise<boolean>} - true si se estableció correctamente
  */
-async function setCrmType(crmType) {
+async function setCrmType() {
     try {
-        if (!['googleSheets', 'bitrix24', 'both', 'none'].includes(crmType)) {
-            throw new Error('Tipo de CRM no válido');
+        // Inicializar Google Sheets si no está inicializado
+        if (!googleSheet) {
+            await initializeGoogleSheets();
         }
-
-        // Actualizar configuración
-        crmConfig.activeCrm = crmType;
 
         // Guardar configuración
         await saveConfig();
 
-        // Reinicializar CRMs según sea necesario
-        if (crmType === 'googleSheets' || crmType === 'both') {
-            if (!googleSheet) {
-                await initializeGoogleSheets();
-            }
-        }
-
-        if ((crmType === 'bitrix24' || crmType === 'both') && crmConfig.bitrix24.enabled) {
-            if (!bitrix24) {
-                await initializeBitrix24();
-            }
-        }
-
-        logger.info(`CRM Manager: Tipo de CRM cambiado a ${crmType}`);
+        logger.info('CRM Manager: Google Sheets establecido como CRM');
         return true;
     } catch (error) {
-        logger.error(`CRM Manager: Error al cambiar tipo de CRM: ${error.message}`);
+        logger.error(`CRM Manager: Error al establecer Google Sheets como CRM: ${error.message}`);
         return false;
     }
 }
@@ -931,23 +802,18 @@ async function updateConfig(config) {
     }
 }
 
-/**
- * Obtiene los CRMs disponibles
- * @returns {Object} - CRMs disponibles
- */
-function getAvailableCrms() {
-    return {
-        googleSheets: true,
-        bitrix24: bitrix24Integration !== undefined,
-        both: bitrix24Integration !== undefined
-    };
-}
-
 module.exports = {
     initialize,
     testConnection,
     getCrmStatus,
     getConfig: () => ({ ...crmConfig }),
     updateConfig,
-    setCrmType
+    setCrmType,
+    saveMessageToSheet,
+    saveClientToSheet,
+    syncClientData,
+    getProducts,
+    getProductInfo,
+    getFormattedProductsInfo
 };
+

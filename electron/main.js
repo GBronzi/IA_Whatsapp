@@ -71,7 +71,7 @@ const appConfig = {
   name: 'Asistente de Ventas WhatsApp',
   icon: path.join(__dirname, 'assets', 'icon.png'),
   googleSheetsUrl: 'https://docs.google.com/spreadsheets/d/1PmLLazjuvBdHcMGqKY94ZH5IkkF6w5Axxt2cr2b_LXI/edit',
-  bitrixUrl: 'https://bitrix24.es/',
+  // No hay URLs externas
   supportEmail: 'soporte@tuempresa.com',
   supportPhone: '+1234567890',
   supportWebsite: 'https://tuempresa.com/soporte',
@@ -644,10 +644,7 @@ function createWindow() {
           }
         },
         {
-          label: 'Abrir Bitrix24 CRM',
-          click: () => {
-            shell.openExternal(appConfig.bitrixUrl);
-          }
+          // No hay opciones de CRM externas
         },
         {
           label: 'Explorar Base de Datos',
@@ -1261,9 +1258,7 @@ ipcMain.on('open-google-sheets', () => {
   shell.openExternal(appConfig.googleSheetsUrl);
 });
 
-ipcMain.on('open-bitrix24', () => {
-  shell.openExternal(appConfig.bitrixUrl);
-});
+// No hay manejadores para CRMs externos
 
 ipcMain.on('open-database-viewer', () => {
   openDatabaseViewer();
@@ -1770,16 +1765,13 @@ ipcMain.on('get-crm-config', async (event) => {
             sheetIndex: 0,
             credentials: null
           },
-          bitrix24: {
-            enabled: false,
-            webhook: ''
-          },
+          // Solo Google Sheets como CRM,
           syncInterval: 5,
           autoSync: true,
           syncOnStart: true,
           status: {
             googleSheets: { connected: false, message: 'No inicializado' },
-            bitrix24: { connected: false, message: 'No inicializado' }
+            // Solo Google Sheets como CRM
           }
         });
       }
@@ -1810,16 +1802,13 @@ ipcMain.on('get-crm-config', async (event) => {
           sheetIndex: 0,
           credentials: null
         },
-        bitrix24: {
-          enabled: false,
-          webhook: ''
-        },
+        // Solo Google Sheets como CRM
         syncInterval: 5,
         autoSync: true,
         syncOnStart: true,
         status: {
           googleSheets: { connected: false, message: `Error: ${error.message}` },
-          bitrix24: { connected: false, message: 'No inicializado' }
+          // Solo Google Sheets como CRM
         }
       });
     }
@@ -1881,7 +1870,7 @@ ipcMain.on('test-crm-connection', async (event) => {
           message: 'Gestor de CRM no disponible',
           status: {
             googleSheets: { connected: false, message: 'No inicializado' },
-            bitrix24: { connected: false, message: 'No inicializado' }
+            // Solo Google Sheets como CRM
           }
         });
       }
@@ -1911,7 +1900,7 @@ ipcMain.on('test-crm-connection', async (event) => {
         message: `Error al probar conexión: ${error.message}`,
         status: {
           googleSheets: { connected: false, message: `Error: ${error.message}` },
-          bitrix24: { connected: false, message: 'No inicializado' }
+          // Solo Google Sheets como CRM
         }
       });
     }

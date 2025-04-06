@@ -40,17 +40,13 @@ db.initializeDatabase();
 // Inicializar gestor de CRM
 let crm;
 try {
-    // Inicializar con Google Sheets como CRM por defecto
+    // Inicializar con Google Sheets como CRM
     crm = crmManager.initialize({
-        activeCrm: 'googleSheets',
         googleSheets: {
             docId: process.env.SPREADSHEET_ID || process.env.GOOGLE_SHEET_ID || '',
             credentials: null,
-            sheetIndex: 0
-        },
-        bitrix24: {
-            webhook: process.env.BITRIX24_WEBHOOK || '',
-            enabled: false // Bitrix24 desactivado por defecto
+            sheetIndex: 0,
+            dataSheetIndex: 1
         }
     });
 
