@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configuración - Asistente de Ventas WhatsApp</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        .settings-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .settings-section {
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            padding: 20px;
+        }
+        
+        .settings-section h2 {
+            color: var(--primary-color);
+            margin-top: 0;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .form-row {
+            margin-bottom: 15px;
+        }
+        
+        .form-row label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+        
+        .form-row input[type="text"],
+        .form-row input[type="password"],
+        .form-row input[type="number"],
+        .form-row select {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        
+        .form-row .checkbox-container {
+            display: flex;
+            align-items: center;
+        }
+        
+        .form-row .checkbox-container input[type="checkbox"] {
+            margin-right: 10px;
+        }
+        
+        .btn-group {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background-color 0.3s;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+        }
+        
+        .btn-secondary {
+            background-color: #f0f0f0;
+            color: #333;
+        }
+        
+        .btn-secondary:hover {
+            background-color: #e0e0e0;
+        }
+        
+        .btn-danger {
+            background-color: #dc3545;
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background-color: #bd2130;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .status-success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        
+        .status-warning {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+        
+        .status-danger {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        
+        .status-info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+        }
+        
+        .progress-container {
+            width: 100%;
+            height: 10px;
+            background-color: #f0f0f0;
+            border-radius: 5px;
+            margin-top: 10px;
+            overflow: hidden;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background-color: var(--primary-color);
+            width: 0%;
+            transition: width 0.3s;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .loading {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 8px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Barra lateral -->
+        <div class="sidebar">
+            <div class="logo">
+                <img src="assets/logo.png" alt="Logo">
+                <h1>Asistente de Ventas</h1>
+            </div>
+            <nav class="menu">
+                <a href="index.html">
+                    <i class="fas fa-home"></i>
+                    <span>Inicio</span>
+                </a>
+                <a href="chats.html">
+                    <i class="fas fa-comments"></i>
+                    <span>Chats</span>
+                </a>
+                <a href="contacts.html">
+                    <i class="fas fa-address-book"></i>
+                    <span>Contactos</span>
+                </a>
+                <a href="analytics.html">
+                    <i class="fas fa-chart-bar"></i>
+                    <span>Análisis</span>
+                </a>
+                <a href="settings.html" class="active">
+                    <i class="fas fa-cog"></i>
+                    <span>Configuración</span>
+                </a>
+            </nav>
+            <div class="user-info">
+                <img src="assets/user.png" alt="Usuario">
+                <div>
+                    <h3 id="user-name">Usuario</h3>
+                    <p id="user-status">Conectado</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Contenido principal -->
+        <div class="main-content">
+            <header>
+                <h1>Configuración</h1>
+                <div class="header-actions">
+                    <button id="logout-btn" class="btn-logout">
+                        <i class="fas fa-sign-out-alt"></i>
+                        Cerrar sesión
+                    </button>
+                </div>
+            </header>
+            
+            <div class="settings-container">
+                <!-- Sección de licencia -->
+                <div class="settings-section">
+                    <h2>Información de licencia</h2>
+                    <div class="form-row">
+                        <label>Estado de licencia:</label>
+                        <div>
+                            <span id="license-status" class="status-badge status-success">Activa</span>
+                            <span id="license-offline" class="status-badge status-warning hidden">Modo offline</span>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <label>Clave de licencia:</label>
+                        <div id="license-key">XXXX-XXXX-XXXX-XXXX</div>
+                    </div>
+                    <div class="form-row">
+                        <label>Fecha de expiración:</label>
+                        <div id="license-expiry">31/12/2023</div>
+                    </div>
+                    <div class="btn-group">
+                        <button id="activate-license-btn" class="btn btn-primary">Activar nueva licencia</button>
+                        <button id="revoke-license-btn" class="btn btn-danger">Revocar licencia</button>
+                    </div>
+                </div>
+                
+                <!-- Sección de actualizaciones -->
+                <div class="settings-section">
+                    <h2>Actualizaciones</h2>
+                    <div class="form-row">
+                        <label>Versión actual:</label>
+                        <div id="current-version">1.0.0</div>
+                    </div>
+                    <div class="form-row">
+                        <label>Última verificación:</label>
+                        <div id="last-check">Nunca</div>
+                    </div>
+                    <div id="update-status-container" class="form-row hidden">
+                        <label>Estado:</label>
+                        <div>
+                            <span id="update-status" class="status-badge status-info">Actualización disponible</span>
+                        </div>
+                    </div>
+                    <div id="update-version-container" class="form-row hidden">
+                        <label>Nueva versión:</label>
+                        <div id="update-version">1.1.0</div>
+                    </div>
+                    <div id="update-notes-container" class="form-row hidden">
+                        <label>Notas de la versión:</label>
+                        <div id="update-notes">Mejoras de rendimiento y corrección de errores.</div>
+                    </div>
+                    <div id="download-progress-container" class="form-row hidden">
+                        <label>Progreso de descarga:</label>
+                        <div class="progress-container">
+                            <div id="download-progress-bar" class="progress-bar"></div>
+                        </div>
+                        <div id="download-progress-text">0%</div>
+                    </div>
+                    <div class="form-row checkbox-container">
+                        <input type="checkbox" id="auto-check-updates">
+                        <label for="auto-check-updates">Verificar actualizaciones automáticamente</label>
+                    </div>
+                    <div class="form-row checkbox-container">
+                        <input type="checkbox" id="auto-download-updates">
+                        <label for="auto-download-updates">Descargar actualizaciones automáticamente</label>
+                    </div>
+                    <div class="btn-group">
+                        <button id="check-updates-btn" class="btn btn-secondary">Verificar actualizaciones</button>
+                        <button id="download-update-btn" class="btn btn-primary hidden">Descargar actualización</button>
+                        <button id="install-update-btn" class="btn btn-primary hidden">Instalar actualización</button>
+                    </div>
+                </div>
+                
+                <!-- Sección de configuración general -->
+                <div class="settings-section">
+                    <h2>Configuración general</h2>
+                    <div class="form-row">
+                        <label for="sheets-id">ID de Google Sheets:</label>
+                        <input type="text" id="sheets-id" placeholder="Ingresa el ID de Google Sheets">
+                    </div>
+                    <div class="form-row">
+                        <label for="notification-sound">Sonido de notificación:</label>
+                        <select id="notification-sound">
+                            <option value="default">Predeterminado</option>
+                            <option value="bell">Campana</option>
+                            <option value="chime">Timbre</option>
+                            <option value="ding">Ding</option>
+                            <option value="none">Sin sonido</option>
+                        </select>
+                    </div>
+                    <div class="form-row checkbox-container">
+                        <input type="checkbox" id="start-with-windows">
+                        <label for="start-with-windows">Iniciar con Windows</label>
+                    </div>
+                    <div class="form-row checkbox-container">
+                        <input type="checkbox" id="minimize-to-tray">
+                        <label for="minimize-to-tray">Minimizar a la bandeja del sistema</label>
+                    </div>
+                    <div class="btn-group">
+                        <button id="save-settings-btn" class="btn btn-primary">Guardar configuración</button>
+                        <button id="reset-settings-btn" class="btn btn-secondary">Restablecer</button>
+                    </div>
+                </div>
+                
+                <!-- Sección de diagnóstico -->
+                <div class="settings-section">
+                    <h2>Diagnóstico</h2>
+                    <div class="form-row">
+                        <label>Estado de WhatsApp:</label>
+                        <div>
+                            <span id="whatsapp-status" class="status-badge status-success">Conectado</span>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <label>Estado de Google Sheets:</label>
+                        <div>
+                            <span id="sheets-status" class="status-badge status-warning">No configurado</span>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <label>Uso de memoria:</label>
+                        <div id="memory-usage">0 MB</div>
+                    </div>
+                    <div class="btn-group">
+                        <button id="view-logs-btn" class="btn btn-secondary">Ver registros</button>
+                        <button id="run-diagnostics-btn" class="btn btn-primary">Ejecutar diagnóstico</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal de activación de licencia -->
+    <div id="license-modal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Activar licencia</h2>
+                <span class="close-modal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="form-row">
+                    <label for="license-key-input">Clave de licencia:</label>
+                    <input type="text" id="license-key-input" placeholder="Ingresa tu clave de licencia">
+                </div>
+                <div id="license-modal-error" class="error-message hidden"></div>
+                <div id="license-modal-success" class="success-message hidden"></div>
+            </div>
+            <div class="modal-footer">
+                <button id="cancel-license-btn" class="btn btn-secondary">Cancelar</button>
+                <button id="confirm-license-btn" class="btn btn-primary">Activar</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal de recuperación de licencia -->
+    <div id="recovery-modal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Recuperar licencia</h2>
+                <span class="close-modal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="form-row">
+                    <label for="recovery-username">Nombre de usuario:</label>
+                    <input type="text" id="recovery-username" placeholder="Ingresa tu nombre de usuario">
+                </div>
+                <div id="recovery-modal-error" class="error-message hidden"></div>
+                <div id="recovery-modal-success" class="success-message hidden"></div>
+            </div>
+            <div class="modal-footer">
+                <button id="cancel-recovery-btn" class="btn btn-secondary">Cancelar</button>
+                <button id="confirm-recovery-btn" class="btn btn-primary">Recuperar</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal de visualización de registros -->
+    <div id="logs-modal" class="modal hidden">
+        <div class="modal-content modal-large">
+            <div class="modal-header">
+                <h2>Registros de la aplicación</h2>
+                <span class="close-modal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="logs-container">
+                    <pre id="logs-content"></pre>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="refresh-logs-btn" class="btn btn-secondary">Actualizar</button>
+                <button id="export-logs-btn" class="btn btn-primary">Exportar</button>
+                <button id="close-logs-btn" class="btn btn-secondary">Cerrar</button>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+    <script src="js/settings.js"></script>
+</body>
+</html>
