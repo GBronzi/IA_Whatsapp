@@ -58,7 +58,7 @@ licenseClient.generateDeviceId = () => TEST_DEVICE_ID;
 // Pruebas
 describe('Cliente de licencias', function() {
   // Restaurar mocks después de las pruebas
-  after(function() {
+  afterAll(function() {
     licenseClient.generateDeviceId = originalGenerateDeviceId;
     nock.cleanAll();
   });

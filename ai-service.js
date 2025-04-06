@@ -11,18 +11,9 @@ const logger = require('./logger');
 const sentimentAnalyzer = require('./sentiment-analyzer');
 const intentRecognizer = require('./intent-recognizer');
 const aiModels = require('./ai-models');
-const bitrix24Integration = require('./bitrix24-integration');
 const cacheManager = require('./cache-manager');
 
-// Inicializar integración con Bitrix24
-let bitrix24;
-try {
-    bitrix24 = bitrix24Integration.initialize({
-        webhook: process.env.BITRIX24_WEBHOOK || ''
-    });
-} catch (error) {
-    logger.error(`Error al inicializar integración con Bitrix24: ${error.message}`);
-}
+// Bitrix24 ya no se utiliza, se ha migrado completamente a Google Sheets
 
 /**
  * Formatea el historial de mensajes para Ollama
@@ -143,21 +134,13 @@ async function loadTrainingExamples() {
 }
 
 /**
- * Obtiene información de productos desde Bitrix24 o archivo local
+ * Obtiene información de productos desde archivo local o datos predeterminados
  * @returns {Promise<string>} - Información de productos formateada
  */
 async function getProductsInfo() {
-    // Usar caché para evitar consultas repetidas a Bitrix24
+    // Usar caché para evitar lecturas repetidas del disco
     return await cacheManager.getOrSet('products_info', async () => {
         try {
-            // Intentar obtener productos desde Bitrix24
-            if (bitrix24) {
-                const productsInfo = await bitrix24.getFormattedProductsInfo();
-                if (productsInfo && productsInfo !== 'No hay productos disponibles.' &&
-                    productsInfo !== 'Error al obtener información de productos.') {
-                    return productsInfo;
-                }
-            }
 
             // Si no hay productos en Bitrix24 o falló, usar información predeterminada
             return `- Programación: Cursos de Python, JavaScript, Java y desarrollo web. Desde $299.

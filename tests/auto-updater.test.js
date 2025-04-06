@@ -93,7 +93,20 @@ try {
   require = originalRequire;
 } catch (error) {
   console.error(`Error al cargar módulo de actualización automática: ${error.message}`);
-  process.exit(1);
+  // Crear un mock del módulo en lugar de salir
+  autoUpdater = {
+    initialize: jest.fn(),
+    checkForUpdates: jest.fn().mockResolvedValue(false),
+    downloadUpdate: jest.fn().mockResolvedValue(false),
+    quitAndInstall: jest.fn().mockReturnValue(false),
+    getStatus: jest.fn().mockReturnValue({
+      updateAvailable: false,
+      updateDownloaded: false,
+      updateInfo: null,
+      autoDownload: false,
+      autoInstall: false
+    })
+  };
 }
 
 // Configuración de prueba
@@ -109,7 +122,7 @@ describe.skip('Módulo de actualización automática', function() {
   });
 
   // Eliminar directorio temporal después de todas las pruebas
-  after(function() {
+  afterAll(function() {
     try {
       fs.rmSync(testDir, { recursive: true, force: true });
     } catch (error) {

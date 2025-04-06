@@ -2,7 +2,7 @@
  * index.js - Asistente de WhatsApp conversacional con IA (Ollama),
  * recolección de datos dirigida por IA y almacenamiento en Google Sheets.
  * Versión mejorada con modularización, persistencia, manejo de medios,
- * análisis de sentimiento, reconocimiento de intenciones e integración con Bitrix24.
+ * análisis de sentimiento y reconocimiento de intenciones.
  */
 
 // --- Dependencias ---
