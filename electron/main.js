@@ -27,6 +27,28 @@ try {
   log.error(`Error al cargar gestor de licencias: ${error.message}`);
 }
 
+// Importar cliente de licencias
+let licenseClient;
+try {
+  licenseClient = require('../license-client');
+  licenseClient.initialize({
+    serverUrl: process.env.LICENSE_SERVER_URL || 'http://localhost:3000',
+    offlineMode: process.env.LICENSE_OFFLINE_MODE === 'true'
+  });
+  log.info('Cliente de licencias inicializado correctamente');
+} catch (error) {
+  log.error(`Error al cargar cliente de licencias: ${error.message}`);
+}
+
+// Importar gestor de actualizaciones
+let autoUpdater;
+try {
+  autoUpdater = require('../auto-updater');
+  log.info('Gestor de actualizaciones cargado correctamente');
+} catch (error) {
+  log.error(`Error al cargar gestor de actualizaciones: ${error.message}`);
+}
+
 // Importar gestor de notificaciones
 let notificationManager;
 try {
@@ -605,6 +627,20 @@ function createWindow() {
     show: false // No mostrar hasta que esté listo
   });
 
+  // Inicializar gestor de actualizaciones
+  if (autoUpdater) {
+    autoUpdater.initialize({
+      autoDownload: false,
+      autoInstall: false,
+      channel: 'stable',
+      mainWindow
+    }).then(() => {
+      log.info('Gestor de actualizaciones inicializado correctamente');
+    }).catch(error => {
+      log.error(`Error al inicializar gestor de actualizaciones: ${error.message}`);
+    });
+  }
+
   // Cargar el archivo HTML de la aplicación
   mainWindow.loadURL(url.format({
     pathname: path.join(__dirname, 'index.html'),
@@ -1068,8 +1104,51 @@ async function checkLicenseAndStart() {
       const authStatus = authManager.getStatus();
       log.info(`Estado de autenticación: ${JSON.stringify(authStatus)}`);
 
-      // Si no hay licencia activa o está expirada, mostrar ventana de login
-      if (authStatus.license.status !== 'active') {
+      // Si hay una licencia activa, verificarla con el servidor
+      if (authStatus.license.status === 'active' && licenseClient && authStatus.license.key) {
+        try {
+          log.info('Verificando licencia con el servidor...');
+
+          const verifyResult = await licenseClient.verifyLicense(authStatus.license.key, {
+            appName: 'AsistenteVentasWhatsApp',
+            userName: os.userInfo().username
+          });
+
+          if (!verifyResult.valid) {
+            log.warn(`Licencia inválida según el servidor: ${verifyResult.message}`);
+
+            // Si la licencia está revocada, desactivarla localmente
+            if (verifyResult.status === 'revoked') {
+              log.warn('Licencia revocada. Desactivando localmente.');
+              await authManager.revokeLicense();
+              createLoginWindow();
+              return;
+            }
+
+            // Si la licencia está expirada, mostrar ventana de login
+            if (verifyResult.status === 'expired') {
+              log.warn('Licencia expirada. Mostrando ventana de login.');
+              createLoginWindow();
+              return;
+            }
+
+            // Si estamos en modo offline, permitir continuar
+            if (verifyResult.offlineMode) {
+              log.info('Modo offline. Permitiendo continuar con licencia local.');
+            } else {
+              log.warn('Licencia inválida. Mostrando ventana de login.');
+              createLoginWindow();
+              return;
+            }
+          } else {
+            log.info('Licencia verificada correctamente con el servidor');
+          }
+        } catch (error) {
+          log.error(`Error al verificar licencia con el servidor: ${error.message}`);
+          log.info('Continuando con licencia local debido al error de verificación');
+        }
+      } else if (authStatus.license.status !== 'active') {
+        // Si no hay licencia activa o está expirada, mostrar ventana de login
         log.info('No hay licencia activa. Mostrando ventana de login.');
         createLoginWindow();
         return;
@@ -2512,31 +2591,120 @@ ipcMain.on('verify-otp', (event, token) => {
 
 // Evento para activar licencia
 ipcMain.on('activate-license', async (event, licenseKey) => {
-  if (!authManager) {
+  try {
+    // Verificar si el cliente de licencias está disponible
+    if (licenseClient) {
+      // Activar licencia con el servidor
+      const result = await licenseClient.activateLicense(licenseKey, {
+        appName: 'AsistenteVentasWhatsApp',
+        userName: os.userInfo().username
+      });
+
+      if (result.success) {
+        log.info('Licencia activada correctamente con el servidor');
+
+        // Activar licencia localmente
+        if (authManager) {
+          const localResult = await authManager.activateLicense(licenseKey);
+
+          if (localResult) {
+            log.info('Licencia activada correctamente localmente');
+
+            // Guardar clave de recuperación si está disponible
+            if (result.recoveryKey) {
+              authConfig.recoveryKey = result.recoveryKey;
+              await authManager.saveConfig();
+              log.info('Clave de recuperación guardada correctamente');
+            }
+
+            event.reply('activate-license-result', {
+              success: true,
+              message: 'Licencia activada correctamente',
+              status: authManager.getStatus()
+            });
+          } else {
+            log.warn('Error al activar licencia localmente');
+
+            event.reply('activate-license-result', {
+              success: false,
+              message: 'Error al activar licencia localmente',
+              status: authManager.getStatus()
+            });
+          }
+        } else {
+          // Si no hay gestor de autenticación, retornar éxito
+          event.reply('activate-license-result', {
+            success: true,
+            message: 'Licencia activada correctamente con el servidor',
+            license: result.license
+          });
+        }
+      } else {
+        log.warn(`Error al activar licencia con el servidor: ${result.message}`);
+
+        // Intentar activar localmente
+        if (authManager) {
+          const localResult = await authManager.activateLicense(licenseKey);
+
+          if (localResult) {
+            log.info('Licencia activada correctamente localmente (modo offline)');
+
+            event.reply('activate-license-result', {
+              success: true,
+              message: 'Licencia activada correctamente (modo offline)',
+              status: authManager.getStatus()
+            });
+          } else {
+            log.warn('Error al activar licencia localmente');
+
+            event.reply('activate-license-result', {
+              success: false,
+              message: result.message || 'Error al activar licencia',
+              status: authManager.getStatus()
+            });
+          }
+        } else {
+          // Si no hay gestor de autenticación, retornar error
+          event.reply('activate-license-result', {
+            success: false,
+            message: result.message || 'Error al activar licencia'
+          });
+        }
+      }
+    } else if (authManager) {
+      // Si no hay cliente de licencias, usar solo el gestor de autenticación
+      const result = await authManager.activateLicense(licenseKey);
+
+      if (result) {
+        log.info('Licencia activada correctamente (modo offline)');
+
+        event.reply('activate-license-result', {
+          success: true,
+          message: 'Licencia activada correctamente (modo offline)',
+          status: authManager.getStatus()
+        });
+      } else {
+        log.warn('Error al activar licencia');
+
+        event.reply('activate-license-result', {
+          success: false,
+          message: 'Error al activar licencia',
+          status: authManager.getStatus()
+        });
+      }
+    } else {
+      // Si no hay gestor de autenticación ni cliente de licencias, retornar error
+      event.reply('activate-license-result', {
+        success: false,
+        message: 'Gestor de autenticación no disponible'
+      });
+    }
+  } catch (error) {
+    log.error(`Error al activar licencia: ${error.message}`);
+
     event.reply('activate-license-result', {
       success: false,
-      message: 'Gestor de autenticación no disponible'
-    });
-    return;
-  }
-
-  const result = await authManager.activateLicense(licenseKey);
-
-  if (result) {
-    log.info('Licencia activada correctamente');
-
-    event.reply('activate-license-result', {
-      success: true,
-      message: 'Licencia activada correctamente',
-      status: authManager.getStatus()
-    });
-  } else {
-    log.warn('Error al activar licencia');
-
-    event.reply('activate-license-result', {
-      success: false,
-      message: 'Error al activar licencia',
-      status: authManager.getStatus()
+      message: `Error al activar licencia: ${error.message}`
     });
   }
 });
@@ -2573,6 +2741,92 @@ ipcMain.on('check-auth-status', (event) => {
   }
 
   event.reply('auth-status', authManager.getStatus());
+});
+
+// --- Eventos para actualizaciones ---
+
+// Evento para verificar actualizaciones
+ipcMain.on('check-for-updates', async (event) => {
+  if (!autoUpdater) {
+    event.reply('update-status', {
+      success: false,
+      message: 'Gestor de actualizaciones no disponible'
+    });
+    return;
+  }
+
+  try {
+    const updateAvailable = await autoUpdater.checkForUpdates();
+
+    event.reply('update-status', {
+      success: true,
+      updateAvailable,
+      status: autoUpdater.getStatus()
+    });
+  } catch (error) {
+    log.error(`Error al verificar actualizaciones: ${error.message}`);
+
+    event.reply('update-status', {
+      success: false,
+      message: `Error al verificar actualizaciones: ${error.message}`
+    });
+  }
+});
+
+// Evento para descargar actualización
+ipcMain.on('download-update', async (event) => {
+  if (!autoUpdater) {
+    event.reply('download-update-result', {
+      success: false,
+      message: 'Gestor de actualizaciones no disponible'
+    });
+    return;
+  }
+
+  try {
+    const result = await autoUpdater.downloadUpdate();
+
+    event.reply('download-update-result', {
+      success: result,
+      message: result ? 'Descarga iniciada correctamente' : 'No hay actualización disponible para descargar'
+    });
+  } catch (error) {
+    log.error(`Error al descargar actualización: ${error.message}`);
+
+    event.reply('download-update-result', {
+      success: false,
+      message: `Error al descargar actualización: ${error.message}`
+    });
+  }
+});
+
+// Evento para instalar actualización
+ipcMain.on('install-update', (event) => {
+  if (!autoUpdater) {
+    event.reply('install-update-result', {
+      success: false,
+      message: 'Gestor de actualizaciones no disponible'
+    });
+    return;
+  }
+
+  try {
+    const result = autoUpdater.quitAndInstall();
+
+    // Esta respuesta probablemente nunca llegue al cliente
+    // porque la aplicación se cerrará para instalar la actualización
+    event.reply('install-update-result', {
+      success: result,
+      message: result ? 'Instalación iniciada correctamente' : 'No hay actualización descargada para instalar'
+    });
+  } catch (error) {
+    log.error(`Error al instalar actualización: ${error.message}`);
+
+    event.reply('install-update-result', {
+      success: false,
+      message: `Error al instalar actualización: ${error.message}`
+    });
+  }
 });
 
 // Evento para cerrar sesión
@@ -2637,30 +2891,103 @@ ipcMain.on('verify-recovery-code', async (event, code) => {
 
 // Evento para recuperar licencia
 ipcMain.on('recover-license', async (event, userName) => {
-  if (!authManager) {
+  try {
+    // Verificar si el cliente de licencias está disponible
+    if (licenseClient && authManager && authManager.getStatus().recoveryKey) {
+      // Recuperar licencia con el servidor
+      const result = await licenseClient.recoverLicense(
+        authManager.getStatus().recoveryKey,
+        userName
+      );
+
+      if (result.success) {
+        log.info('Licencia recuperada correctamente con el servidor');
+
+        // Activar licencia localmente
+        if (result.license && result.license.key) {
+          const localResult = await authManager.activateLicense(result.license.key);
+
+          if (localResult) {
+            log.info('Licencia recuperada activada correctamente localmente');
+
+            event.reply('recover-license-result', {
+              success: true,
+              message: 'Licencia recuperada correctamente',
+              status: authManager.getStatus()
+            });
+          } else {
+            log.warn('Error al activar licencia recuperada localmente');
+
+            event.reply('recover-license-result', {
+              success: false,
+              message: 'Error al activar licencia recuperada localmente',
+              status: authManager.getStatus()
+            });
+          }
+        } else {
+          // Si no hay clave de licencia en la respuesta
+          event.reply('recover-license-result', {
+            success: true,
+            message: 'Licencia recuperada correctamente, pero no se pudo activar localmente',
+            license: result.license
+          });
+        }
+      } else {
+        log.warn(`Error al recuperar licencia con el servidor: ${result.message}`);
+
+        // Intentar recuperar localmente
+        const localResult = await authManager.recoverLicense(userName);
+
+        if (localResult) {
+          log.info('Licencia recuperada correctamente localmente');
+
+          event.reply('recover-license-result', {
+            success: true,
+            message: 'Licencia recuperada correctamente (modo offline)',
+            status: authManager.getStatus()
+          });
+        } else {
+          log.warn('Error al recuperar licencia localmente');
+
+          event.reply('recover-license-result', {
+            success: false,
+            message: result.message || 'No se pudo recuperar la licencia. Verifica tu nombre de usuario o contacta con soporte.'
+          });
+        }
+      }
+    } else if (authManager) {
+      // Si no hay cliente de licencias o clave de recuperación, usar solo el gestor de autenticación
+      const result = await authManager.recoverLicense(userName);
+
+      if (result) {
+        log.info('Licencia recuperada correctamente (modo offline)');
+
+        event.reply('recover-license-result', {
+          success: true,
+          message: 'Licencia recuperada correctamente (modo offline)',
+          status: authManager.getStatus()
+        });
+      } else {
+        log.warn('Recuperación de licencia fallida');
+
+        event.reply('recover-license-result', {
+          success: false,
+          message: 'No se pudo recuperar la licencia. Verifica tu nombre de usuario o contacta con soporte.'
+        });
+      }
+    } else {
+      // Si no hay gestor de autenticación, retornar error
+      event.reply('recover-license-result', {
+        success: false,
+        message: 'Gestor de autenticación no disponible'
+      });
+    }
+  } catch (error) {
+    log.error(`Error al recuperar licencia: ${error.message}`);
+
     event.reply('recover-license-result', {
       success: false,
-      message: 'Gestor de autenticación no disponible'
-    });
-    return;
-  }
-
-  const result = await authManager.recoverLicense(userName);
-
-  if (result) {
-    log.info('Licencia recuperada correctamente');
-
-    event.reply('recover-license-result', {
-      success: true,
-      message: 'Licencia recuperada correctamente',
-      status: authManager.getStatus()
-    });
-  } else {
-    log.warn('Recuperación de licencia fallida');
-
-    event.reply('recover-license-result', {
-      success: false,
-      message: 'No se pudo recuperar la licencia. Verifica tu nombre de usuario o contacta con soporte.'
+      message: `Error al recuperar licencia: ${error.message}`
     });
   }
 });
