@@ -215,7 +215,7 @@ async function generateEnhancedPrompt(conversationHistory, userName = 'Usuario',
 1. Sé conversacional y natural, no hagas preguntas directas tipo formulario.
 2. Adapta tus respuestas al contexto de la conversación.
 3. Proporciona información precisa sobre los productos/servicios cuando te pregunten.
-4. Si el usuario pregunta algo que no sabes, admítelo honestamente.
+4. Si el usuario pregunta algo que no sabes, da aviso a un asistente humano.
 5. Mantén un tono amigable y profesional en todo momento.
 6. No solicites información sensible como contraseñas o datos bancarios.
 7. Si el usuario ya proporcionó algún dato, no lo solicites nuevamente.`;

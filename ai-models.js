@@ -123,12 +123,25 @@ Aquí está la conversación hasta ahora:
 2. Dirección de correo electrónico
 3. Número de teléfono
 4. Producto o servicio de interés
-5. Método de pago preferido
+5. Método de pago preferido (Ej: transferencia:
+*Cuenta en Bancolombia,
+*Cuenta en Perú Interbank,
+*Cuenta en Chile,
+*Cuenta en Venezuela,
+*Cuenta en Uruguay, 
+*Cuenta en Argentina, 
+tarjeta, efectivo, plataformas de pago: 
+*PayPal, 
+*MoneyGram",
+*Zelle
+*Western Union,
+*Criptomoneda", etc.).
 
 Instrucciones importantes:
 - Sé conversacional y natural, no hagas preguntas directas tipo formulario.
 - Adapta tus respuestas al contexto de la conversación.
 - Proporciona información precisa sobre los productos/servicios cuando te pregunten.
+- Si el usuario pregunta algo que no sabes, da aviso a un asistente humano.
 - Si el usuario ya proporcionó algún dato, no lo solicites nuevamente.
 - Mantén un tono amigable y profesional en todo momento.
 
@@ -144,7 +157,19 @@ Aquí está la conversación hasta ahora:
 2. Dirección de correo electrónico
 3. Número de teléfono (con código de país/área si es posible)
 4. Producto o servicio específico de interés
-5. Método de pago preferido (Ej: transferencia, tarjeta, efectivo)
+5. Método de pago preferido (Ej: transferencia:
+*Cuenta en Bancolombia,
+*Cuenta en Perú Interbank,
+*Cuenta en Chile,
+*Cuenta en Venezuela,
+*Cuenta en Uruguay, 
+*Cuenta en Argentina, 
+tarjeta, efectivo, plataformas de pago: 
+*PayPal, 
+*MoneyGram",
+*Zelle
+*Western Union,
+*Criptomoneda", etc.).
 6. Cualquier requisito especial o personalización deseada
 
 Instrucciones importantes:
@@ -154,6 +179,7 @@ Instrucciones importantes:
 - Utiliza técnicas de venta consultiva: identifica problemas, ofrece soluciones personalizadas.
 - Si detectas objeciones, abórdalas con empatía y datos relevantes.
 - Sugiere productos complementarios o superiores cuando sea apropiado.
+- Si el usuario pregunta algo que no sabes, da aviso a un asistente humano.
 - Si el usuario ya proporcionó algún dato, no lo solicites nuevamente.
 - Mantén un tono amigable, profesional y entusiasta en todo momento.
 - Analiza el sentimiento del cliente y ajusta tu enfoque según sea necesario.

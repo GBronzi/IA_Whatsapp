@@ -56,7 +56,7 @@ async function loadProductsConfig(forceReload = false) {
         // Si no se puede cargar, devolver un objeto vacío
         return {
             business: {
-                name: config.BUSINESS_NAME || 'Tu Empresa'
+                name: config.BUSINESS_NAME || 'Karla Moreno Educadora'
             },
             categories: [],
             promotions: [],
@@ -275,7 +275,7 @@ async function getFormattedProductsInfo(categoryId = null) {
  */
 async function getBusinessInfo() {
     const productsConfig = await loadProductsConfig();
-    return productsConfig.business || { name: config.BUSINESS_NAME || 'Tu Empresa' };
+    return productsConfig.business || { name: config.BUSINESS_NAME || 'Karla Moreno Educadora' };
 }
 
 module.exports = {

@@ -56,5 +56,5 @@ module.exports = {
     PUPPETEER_HEADLESS: getEnvAsBool('PUPPETEER_HEADLESS', false),
     
     // Nombre del negocio (para personalizar mensajes)
-    BUSINESS_NAME: getEnv('BUSINESS_NAME', 'Tu Negocio'),
+    BUSINESS_NAME: getEnv('BUSINESS_NAME', 'Karla Moreno Educadora'),
 };
