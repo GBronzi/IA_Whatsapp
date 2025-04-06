@@ -182,4 +182,4 @@ Este proyecto está licenciado bajo la Licencia ISC - ver el archivo LICENSE par
 
 ## Contacto
 
-Para preguntas o soporte, contacta a [tu-email@ejemplo.com](mailto:g.bronzi91@gmail.com).
+Para preguntas o soporte, contacta a [g.bronzi91@gmail.com](mailto:g.bronzi91@gmail.com).
