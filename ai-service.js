@@ -5,12 +5,14 @@
 
 const axios = require('axios');
 const fs = require('fs').promises;
+const crypto = require('crypto');
 const config = require('./config');
 const logger = require('./logger');
 const sentimentAnalyzer = require('./sentiment-analyzer');
 const intentRecognizer = require('./intent-recognizer');
 const aiModels = require('./ai-models');
 const bitrix24Integration = require('./bitrix24-integration');
+const cacheManager = require('./cache-manager');
 
 // Inicializar integración con Bitrix24
 let bitrix24;
@@ -29,7 +31,7 @@ try {
  */
 function formatHistoryForOllama(history) {
     if (!history || history.length === 0) return '';
-    
+
     return history.map(msg => {
         const role = msg.role === 'user' ? 'Usuario' : 'Asistente';
         return `${role}: ${msg.content}`;
@@ -43,32 +45,32 @@ function formatHistoryForOllama(history) {
  */
 function extractDataFromAIResponse(aiResponse) {
     if (!aiResponse) return {};
-    
+
     // Intentar extraer datos de un bloque JSON marcado
     const dataMarker = "**DATOS_FINALES:**";
     const startIndex = aiResponse.indexOf(dataMarker);
-    
+
     if (startIndex !== -1) {
         try {
             const potentialJson = aiResponse.substring(startIndex + dataMarker.length).trim();
             const jsonStart = potentialJson.indexOf('{');
             const jsonEnd = potentialJson.lastIndexOf('}');
-            
+
             if (jsonStart !== -1 && jsonEnd !== -1 && jsonEnd > jsonStart) {
                 const jsonString = potentialJson.substring(jsonStart, jsonEnd + 1);
                 const parsedData = JSON.parse(jsonString);
-                
+
                 // Validar y limpiar datos
                 if (typeof parsedData === 'object' && parsedData !== null) {
                     const cleanData = {};
                     const allowedKeys = ['nombre', 'correo', 'telefono', 'curso', 'pago'];
-                    
+
                     for (const key of allowedKeys) {
                         if (parsedData[key]) {
                             cleanData[key] = parsedData[key];
                         }
                     }
-                    
+
                     if (Object.keys(cleanData).length > 0) {
                         logger.info("Datos JSON extraídos:", cleanData);
                         return cleanData;
@@ -79,10 +81,10 @@ function extractDataFromAIResponse(aiResponse) {
             logger.error(`Error al parsear JSON de la respuesta: ${error.message}`);
         }
     }
-    
+
     // Si no se encontró un bloque JSON o falló el parsing, usar extracción basada en patrones
     const extractedData = {};
-    
+
     // Patrones para extraer información
     const patterns = {
         nombre: /(?:nombre|llamo|soy)[^\w]+([\w\s]+?)(?:\.|,|\n|$)/i,
@@ -91,7 +93,7 @@ function extractDataFromAIResponse(aiResponse) {
         curso: /(?:curso|taller|clase|programa|interesa)[^\w]+([\w\s]+?)(?:\.|,|\n|$)/i,
         pago: /(?:pago|pagar|abonar|transferencia|tarjeta|efectivo)[^\w]+([\w\s]+?)(?:\.|,|\n|$)/i
     };
-    
+
     // Buscar coincidencias
     for (const [key, pattern] of Object.entries(patterns)) {
         const match = aiResponse.match(pattern);
@@ -99,7 +101,7 @@ function extractDataFromAIResponse(aiResponse) {
             extractedData[key] = match[1].trim();
         }
     }
-    
+
     // También usar el reconocedor de intenciones para extraer entidades
     const intentResult = intentRecognizer.recognizeIntents(aiResponse);
     if (intentResult.entities) {
@@ -116,7 +118,7 @@ function extractDataFromAIResponse(aiResponse) {
             extractedData.curso = intentResult.entities.product;
         }
     }
-    
+
     return extractedData;
 }
 
@@ -125,13 +127,19 @@ function extractDataFromAIResponse(aiResponse) {
  * @returns {Array} - Ejemplos de entrenamiento
  */
 async function loadTrainingExamples() {
-    try {
-        const data = await fs.readFile(config.TRAINING_DATA_PATH, 'utf8');
-        return JSON.parse(data);
-    } catch (error) {
-        logger.warn(`No se pudieron cargar ejemplos de entrenamiento: ${error.message}`);
-        return [];
-    }
+    // Usar caché para evitar lecturas repetidas del disco
+    return await cacheManager.getOrSet('training_examples', async () => {
+        try {
+            const data = await fs.readFile(config.TRAINING_DATA_PATH, 'utf8');
+            return JSON.parse(data);
+        } catch (error) {
+            logger.warn(`No se pudieron cargar ejemplos de entrenamiento: ${error.message}`);
+            return [];
+        }
+    }, {
+        // Mantener en caché por 1 hora, o hasta que se modifique el archivo
+        ttl: 3600000
+    });
 }
 
 /**
@@ -139,26 +147,32 @@ async function loadTrainingExamples() {
  * @returns {Promise<string>} - Información de productos formateada
  */
 async function getProductsInfo() {
-    try {
-        // Intentar obtener productos desde Bitrix24
-        if (bitrix24) {
-            const productsInfo = await bitrix24.getFormattedProductsInfo();
-            if (productsInfo && productsInfo !== 'No hay productos disponibles.' && 
-                productsInfo !== 'Error al obtener información de productos.') {
-                return productsInfo;
+    // Usar caché para evitar consultas repetidas a Bitrix24
+    return await cacheManager.getOrSet('products_info', async () => {
+        try {
+            // Intentar obtener productos desde Bitrix24
+            if (bitrix24) {
+                const productsInfo = await bitrix24.getFormattedProductsInfo();
+                if (productsInfo && productsInfo !== 'No hay productos disponibles.' &&
+                    productsInfo !== 'Error al obtener información de productos.') {
+                    return productsInfo;
+                }
             }
-        }
-        
-        // Si no hay productos en Bitrix24 o falló, usar información predeterminada
-        return `- Programación: Cursos de Python, JavaScript, Java y desarrollo web. Desde $299.
+
+            // Si no hay productos en Bitrix24 o falló, usar información predeterminada
+            return `- Programación: Cursos de Python, JavaScript, Java y desarrollo web. Desde $299.
 - Diseño: Cursos de diseño gráfico, UX/UI y herramientas Adobe. Desde $349.
 - Marketing: Cursos de marketing digital, SEO y redes sociales. Desde $299.
 - Modalidades: Online en vivo, grabado o híbrido.
 - Promociones: 20% de descuento en el segundo curso, becas disponibles.`;
-    } catch (error) {
-        logger.error(`Error al obtener información de productos: ${error.message}`);
-        return 'Información de productos no disponible en este momento.';
-    }
+        } catch (error) {
+            logger.error(`Error al obtener información de productos: ${error.message}`);
+            return 'Información de productos no disponible en este momento.';
+        }
+    }, {
+        // Mantener en caché por 30 minutos (los productos pueden cambiar con cierta frecuencia)
+        ttl: 1800000
+    });
 }
 
 /**
@@ -172,10 +186,10 @@ async function getProductsInfo() {
 async function generateEnhancedPrompt(conversationHistory, userName = 'Usuario', collectedData = {}, context = {}) {
     // Cargar ejemplos de entrenamiento
     const trainingExamples = await loadTrainingExamples();
-    
+
     // Obtener información de productos
     const productsInfo = await getProductsInfo();
-    
+
     // Determinar qué datos faltan por recolectar
     const missingData = [];
     if (!collectedData.nombre) missingData.push('nombre completo');
@@ -183,10 +197,10 @@ async function generateEnhancedPrompt(conversationHistory, userName = 'Usuario',
     if (!collectedData.telefono) missingData.push('número de teléfono');
     if (!collectedData.curso) missingData.push('curso o servicio de interés');
     if (!collectedData.pago) missingData.push('método de pago preferido');
-    
+
     // Seleccionar plantilla según el modelo y recursos disponibles
     let promptTemplate;
-    
+
     // Si hay un modelo específico configurado, usar su plantilla
     if (context.modelId) {
         // Generar prompt usando el módulo de modelos de IA
@@ -196,10 +210,10 @@ async function generateEnhancedPrompt(conversationHistory, userName = 'Usuario',
             conversation_history: conversationHistory
         });
     }
-    
+
     // Si no hay modelo específico, usar plantilla estándar mejorada
     let prompt = `Eres un asistente virtual de ventas para ${config.BUSINESS_NAME}. Tu objetivo es conversar amigablemente con el usuario, entender sus necesidades y recolectar la siguiente información:`;
-    
+
     // Si faltan datos, especificar cuáles
     if (missingData.length > 0) {
         prompt += `\nNecesitas recolectar de forma natural los siguientes datos que aún faltan:`;
@@ -209,7 +223,7 @@ async function generateEnhancedPrompt(conversationHistory, userName = 'Usuario',
     } else {
         prompt += `\nYa has recolectado toda la información necesaria. Ahora puedes enfocarte en resolver dudas y cerrar la venta.`;
     }
-    
+
     // Añadir instrucciones específicas
     prompt += `\n\nInstrucciones importantes:
 1. Sé conversacional y natural, no hagas preguntas directas tipo formulario.
@@ -227,20 +241,20 @@ async function generateEnhancedPrompt(conversationHistory, userName = 'Usuario',
         } else if (context.sentiment === 'positive' || context.sentiment === 'very_positive') {
             prompt += `\n8. El usuario muestra interés positivo. Es un buen momento para sugerir productos adicionales o complementarios y reforzar su decisión.`;
         }
-        
+
         if (context.urgency && context.urgency >= 7) {
             prompt += `\n9. El usuario muestra alta urgencia. Prioriza respuestas concisas y ofrece soluciones inmediatas.`;
         }
     }
-    
+
     // Añadir instrucciones basadas en la intención si está disponible
     if (context.primaryIntent) {
         prompt += `\n\nEl usuario parece estar interesado en: ${context.primaryIntent.replace('_', ' ').toLowerCase()}. Adapta tu respuesta a esta intención.`;
     }
-    
+
     // Añadir información sobre los productos/servicios
     prompt += `\n\nInformación sobre nuestros productos/servicios:\n${productsInfo}`;
-    
+
     // Añadir ejemplos de entrenamiento si existen
     if (trainingExamples.length > 0) {
         prompt += `\n\nEjemplos de cómo responder a preguntas comunes:`;
@@ -248,19 +262,19 @@ async function generateEnhancedPrompt(conversationHistory, userName = 'Usuario',
             prompt += `\n\nUsuario: ${example.prompt}\nAsistente: ${example.response}`;
         });
     }
-    
+
     // Añadir instrucción para incluir datos estructurados en la respuesta
     prompt += `\n\n**Instrucción Importante:** Cuando creas que has recopilado toda o la mayoría de la información necesaria, incluye al final de tu respuesta un bloque JSON claramente marcado con los datos. Usa este formato EXACTO (incluyendo el marcador):
 **DATOS_FINALES:** {"nombre": "...", "correo": "...", "telefono": "...", "curso": "...", "pago": "..."}
 Si aún no tienes un dato, omite la clave o déjala como string vacío en el JSON. Solo incluye este bloque cuando estés razonablemente seguro de haber obtenido la información.`;
-    
+
     // Añadir el historial de conversación
     prompt += `\n\nAquí está la conversación hasta ahora:
 --- HISTORIAL ---
 ${conversationHistory}
 ---
 Asistente:`;
-    
+
     return prompt;
 }
 
@@ -283,23 +297,37 @@ async function callOllamaAndProcess(chatId, history, collectedData = {}, options
 
     const conversationHistory = formatHistoryForOllama(history);
     const userName = collectedData.nombre || 'Usuario';
-    
+
+    // Generar una clave de caché única basada en el historial y los datos recolectados
+    // Solo cachear si no se especifica una opción de no caché
+    if (!options.noCache) {
+        // Crear un hash de la conversación y los datos para usar como clave de caché
+        const cacheKey = generateCacheKey(history, collectedData, options);
+
+        // Intentar obtener respuesta de la caché
+        const cachedResponse = await cacheManager.get(cacheKey);
+        if (cachedResponse) {
+            logger.info(`Respuesta obtenida de caché para ${chatId}`);
+            return cachedResponse;
+        }
+    }
+
     // Analizar último mensaje del usuario para contexto
     const lastUserMessage = history.filter(msg => msg.role === 'user').pop();
     let context = {};
-    
+
     if (lastUserMessage && lastUserMessage.content) {
         // Analizar sentimiento
         const sentimentResult = sentimentAnalyzer.analyzeSentiment(lastUserMessage.content);
         context.sentiment = sentimentResult.sentiment;
         context.urgency = sentimentResult.urgency;
-        
+
         // Reconocer intención
         const intentResult = intentRecognizer.recognizeIntents(lastUserMessage.content);
         context.primaryIntent = intentResult.primaryIntent;
         context.entities = intentResult.entities;
     }
-    
+
     // Analizar conversación completa para tendencias
     const userMessages = history.filter(msg => msg.role === 'user').map(msg => msg.content);
     if (userMessages.length > 1) {
@@ -307,7 +335,7 @@ async function callOllamaAndProcess(chatId, history, collectedData = {}, options
         context.overallSentiment = conversationAnalysis.overallSentiment;
         context.sentimentTrend = conversationAnalysis.sentimentTrend;
     }
-    
+
     // Seleccionar modelo según opciones o configuración
     const modelId = options.modelId || config.OLLAMA_MODEL;
     context.modelId = modelId;
@@ -315,10 +343,10 @@ async function callOllamaAndProcess(chatId, history, collectedData = {}, options
     try {
         // Generar prompt mejorado con todo el contexto
         const prompt = await generateEnhancedPrompt(conversationHistory, userName, collectedData, context);
-        
+
         logger.info(`Enviando prompt a Ollama (modelo: ${modelId}) para ${chatId}`);
         logger.debug('Prompt enviado:', { prompt });
-        
+
         // Llamar a Ollama
         const response = await axios.post(config.OLLAMA_URL, {
             model: modelId,
@@ -334,21 +362,21 @@ async function callOllamaAndProcess(chatId, history, collectedData = {}, options
         // Procesar respuesta
         const aiRawResponse = response.data.response || '';
         logger.info(`Respuesta recibida de Ollama para ${chatId}`);
-        
+
         // Extraer datos estructurados
         const extractedData = extractDataFromAIResponse(aiRawResponse);
         logger.debug('Datos extraídos:', { extractedData });
-        
+
         // Limpiar respuesta (quitar bloque JSON si existe)
         const dataMarker = "**DATOS_FINALES:**";
         const markerIndex = aiRawResponse.indexOf(dataMarker);
         const cleanResponse = markerIndex !== -1
             ? aiRawResponse.substring(0, markerIndex).trim()
             : aiRawResponse;
-            
+
         // Evitar respuestas vacías después de limpiar
         const finalResponse = cleanResponse || "¡Entendido! He registrado la información.";
-        
+
         // Sincronizar con Bitrix24 si hay datos suficientes
         if (bitrix24 && extractedData && (extractedData.nombre || extractedData.telefono || extractedData.correo)) {
             try {
@@ -356,7 +384,7 @@ async function callOllamaAndProcess(chatId, history, collectedData = {}, options
                     ...collectedData,
                     ...extractedData
                 });
-                
+
                 if (syncResult.success) {
                     logger.info(`Datos sincronizados con Bitrix24 para ${chatId}`);
                 }
@@ -364,8 +392,8 @@ async function callOllamaAndProcess(chatId, history, collectedData = {}, options
                 logger.error(`Error al sincronizar con Bitrix24: ${syncError.message}`);
             }
         }
-        
-        return {
+
+        const result = {
             response: finalResponse,
             extractedData,
             context: {
@@ -374,9 +402,21 @@ async function callOllamaAndProcess(chatId, history, collectedData = {}, options
                 primaryIntent: context.primaryIntent
             }
         };
+
+        // Guardar en caché si no se especifica una opción de no caché
+        if (!options.noCache) {
+            const cacheKey = generateCacheKey(history, collectedData, options);
+            await cacheManager.set(cacheKey, result, {
+                // Tiempo de vida de 1 hora para respuestas cacheadas
+                ttl: 3600000
+            });
+            logger.debug(`Respuesta guardada en caché para ${chatId}`);
+        }
+
+        return result;
     } catch (error) {
         logger.error(`Error al llamar a Ollama para ${chatId}: ${error.message}`);
-        
+
         // Si el error es por el modelo, intentar con un modelo de respaldo
         if (error.message.includes('model') && modelId !== 'llama3.1:8b-q4') {
             logger.warn(`Intentando con modelo de respaldo para ${chatId}`);
@@ -385,12 +425,41 @@ async function callOllamaAndProcess(chatId, history, collectedData = {}, options
                 modelId: 'llama3.1:8b-q4' // Modelo de respaldo ligero
             });
         }
-        
+
         return {
             response: "Lo siento, estoy teniendo problemas para procesar tu mensaje. ¿Podrías intentarlo de nuevo en unos momentos?",
             extractedData: {}
         };
     }
+}
+
+/**
+ * Genera una clave de caché única basada en el historial, datos recolectados y opciones
+ * @param {Array} history - Historial de mensajes
+ * @param {Object} collectedData - Datos ya recolectados
+ * @param {Object} options - Opciones adicionales
+ * @returns {string} - Clave de caché única
+ */
+function generateCacheKey(history, collectedData, options) {
+    // Extraer solo los últimos 5 mensajes para la clave de caché
+    // Esto permite que conversaciones similares compartan caché
+    const recentMessages = history.slice(-5);
+
+    // Crear un objeto con los datos relevantes para la clave
+    const keyData = {
+        messages: recentMessages.map(msg => ({
+            role: msg.role,
+            content: msg.content
+        })),
+        collectedData: { ...collectedData },
+        modelId: options.modelId || config.OLLAMA_MODEL
+    };
+
+    // Convertir a JSON y generar hash
+    const jsonData = JSON.stringify(keyData);
+    const hash = crypto.createHash('md5').update(jsonData).digest('hex');
+
+    return `ai_response:${hash}`;
 }
 
 /**

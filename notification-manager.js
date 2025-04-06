@@ -6,6 +6,7 @@ const path = require('path');
 const fs = require('fs').promises;
 const { app, Notification } = require('electron');
 const logger = require('./logger');
+const humanAssistanceDetector = require('./human-assistance-detector');
 
 // Configuración
 const NOTIFICATION_SOUNDS_DIR = path.join(__dirname, 'electron', 'assets', 'sounds');
@@ -38,17 +39,17 @@ async function loadConfig() {
       await saveConfig();
       return;
     }
-    
+
     // Leer archivo de configuración
     const data = await fs.readFile(NOTIFICATION_CONFIG_PATH, 'utf8');
     const config = JSON.parse(data);
-    
+
     // Actualizar configuración
     notificationConfig = {
       ...notificationConfig,
       ...config
     };
-    
+
     logger.info('Configuración de notificaciones cargada correctamente');
   } catch (error) {
     logger.error(`Error al cargar configuración de notificaciones: ${error.message}`);
@@ -70,17 +71,17 @@ async function initialize() {
   try {
     // Cargar configuración
     await loadConfig();
-    
+
     // Crear directorio de sonidos si no existe
     try {
       await fs.access(NOTIFICATION_SOUNDS_DIR);
     } catch (error) {
       await fs.mkdir(NOTIFICATION_SOUNDS_DIR, { recursive: true });
     }
-    
+
     // Verificar sonidos predeterminados
     await ensureDefaultSounds();
-    
+
     logger.info('Módulo de notificaciones inicializado correctamente');
     return true;
   } catch (error) {
@@ -97,10 +98,10 @@ async function ensureDefaultSounds() {
     { name: 'notification.mp3', url: 'https://github.com/tuempresa/whatsapp-assistant/raw/main/sounds/notification.mp3' },
     { name: 'info.mp3', url: 'https://github.com/tuempresa/whatsapp-assistant/raw/main/sounds/info.mp3' }
   ];
-  
+
   for (const sound of defaultSounds) {
     const soundPath = path.join(NOTIFICATION_SOUNDS_DIR, sound.name);
-    
+
     try {
       await fs.access(soundPath);
     } catch (error) {
@@ -129,12 +130,12 @@ async function sendNotification(options = {}) {
       actions = [],
       data = {}
     } = options;
-    
+
     // Validar datos requeridos
     if (!body) {
       throw new Error('El cuerpo de la notificación es obligatorio');
     }
-    
+
     // Crear objeto de notificación
     const notification = {
       id: Date.now().toString(),
@@ -149,26 +150,26 @@ async function sendNotification(options = {}) {
       data,
       read: false
     };
-    
+
     // Guardar en historial
     addToHistory(notification);
-    
+
     // Enviar notificación según configuración
     if (notificationConfig.enableDesktopNotifications) {
       sendDesktopNotification(notification);
     }
-    
+
     if (notificationConfig.enableInAppNotifications) {
       sendInAppNotification(notification);
     }
-    
+
     if (notificationConfig.enableSounds) {
       playNotificationSound(notification.priority);
     }
-    
+
     // Registrar en log
     logger.info(`Notificación enviada: ${notification.title} - ${notification.body}`);
-    
+
     return true;
   } catch (error) {
     logger.error(`Error al enviar notificación: ${error.message}`);
@@ -187,7 +188,7 @@ function sendDesktopNotification(notification) {
       logger.warn('Las notificaciones de escritorio no son soportadas en este sistema');
       return;
     }
-    
+
     // Crear notificación
     const desktopNotification = new Notification({
       title: notification.title,
@@ -195,10 +196,10 @@ function sendDesktopNotification(notification) {
       icon: path.join(__dirname, 'electron', 'assets', 'icon.png'),
       silent: true // Silenciar sonido nativo, usaremos nuestro propio sistema de sonido
     });
-    
+
     // Mostrar notificación
     desktopNotification.show();
-    
+
     // Manejar clic en la notificación
     desktopNotification.on('click', () => {
       // Emitir evento para que la aplicación principal lo maneje
@@ -230,7 +231,7 @@ function playNotificationSound(priority = 'medium') {
   try {
     // Determinar qué sonido reproducir
     let soundFile;
-    
+
     if (priority === 'high') {
       soundFile = notificationConfig.prioritySounds.high;
     } else if (priority === 'medium') {
@@ -240,10 +241,10 @@ function playNotificationSound(priority = 'medium') {
     } else {
       soundFile = notificationConfig.defaultSound;
     }
-    
+
     // Ruta completa al archivo de sonido
     const soundPath = path.join(NOTIFICATION_SOUNDS_DIR, soundFile);
-    
+
     // Emitir evento para que la aplicación principal reproduzca el sonido
     global.playSound && global.playSound(soundPath, notificationConfig.soundVolume);
   } catch (error) {
@@ -258,12 +259,12 @@ function playNotificationSound(priority = 'medium') {
 function addToHistory(notification) {
   // Añadir al inicio del array
   notificationConfig.notificationHistory.unshift(notification);
-  
+
   // Limitar tamaño del historial
   if (notificationConfig.notificationHistory.length > notificationConfig.maxHistoryItems) {
     notificationConfig.notificationHistory = notificationConfig.notificationHistory.slice(0, notificationConfig.maxHistoryItems);
   }
-  
+
   // Guardar configuración
   saveConfig().catch(error => {
     logger.error(`Error al guardar historial de notificaciones: ${error.message}`);
@@ -283,22 +284,22 @@ function getNotificationHistory(filters = {}) {
       priority,
       requiresHumanAttention
     } = filters;
-    
+
     // Filtrar notificaciones
     let filteredHistory = [...notificationConfig.notificationHistory];
-    
+
     if (onlyUnread) {
       filteredHistory = filteredHistory.filter(n => !n.read);
     }
-    
+
     if (priority) {
       filteredHistory = filteredHistory.filter(n => n.priority === priority);
     }
-    
+
     if (requiresHumanAttention !== undefined) {
       filteredHistory = filteredHistory.filter(n => n.requiresHumanAttention === requiresHumanAttention);
     }
-    
+
     // Limitar resultados
     return filteredHistory.slice(0, limit);
   } catch (error) {
@@ -316,19 +317,19 @@ function markAsRead(notificationId) {
   try {
     // Buscar notificación
     const notification = notificationConfig.notificationHistory.find(n => n.id === notificationId);
-    
+
     if (!notification) {
       return false;
     }
-    
+
     // Marcar como leída
     notification.read = true;
-    
+
     // Guardar configuración
     saveConfig().catch(error => {
       logger.error(`Error al guardar estado de notificación: ${error.message}`);
     });
-    
+
     return true;
   } catch (error) {
     logger.error(`Error al marcar notificación como leída: ${error.message}`);
@@ -346,12 +347,12 @@ function markAllAsRead() {
     notificationConfig.notificationHistory.forEach(n => {
       n.read = true;
     });
-    
+
     // Guardar configuración
     saveConfig().catch(error => {
       logger.error(`Error al guardar estado de notificaciones: ${error.message}`);
     });
-    
+
     return true;
   } catch (error) {
     logger.error(`Error al marcar todas las notificaciones como leídas: ${error.message}`);
@@ -371,14 +372,65 @@ async function updateConfig(config = {}) {
       ...notificationConfig,
       ...config
     };
-    
+
     // Guardar configuración
     await saveConfig();
-    
+
     return true;
   } catch (error) {
     logger.error(`Error al actualizar configuración de notificaciones: ${error.message}`);
     return false;
+  }
+}
+
+/**
+ * Detecta si un mensaje requiere asistencia humana
+ * @param {Object} options - Opciones para la detección
+ * @returns {Promise<Object>} - Resultado de la detección
+ */
+async function checkHumanAssistanceNeeded(options = {}) {
+  try {
+    const {
+      chatId,
+      message,
+      context = {}
+    } = options;
+
+    // Validar datos requeridos
+    if (!chatId || !message) {
+      throw new Error('El ID de chat y el mensaje son obligatorios');
+    }
+
+    // Utilizar el detector avanzado de asistencia humana
+    const result = humanAssistanceDetector.detectHumanAssistanceNeeded(message, context);
+
+    // Si se necesita asistencia humana, enviar notificación
+    if (result.needsHumanAssistance) {
+      // Obtener razón de la detección
+      const reason = result.explanation.length > 0
+        ? result.explanation[result.explanation.length - 1]
+        : 'El cliente ha solicitado hablar con un agente humano';
+
+      // Enviar notificación
+      await sendHumanAssistanceNotification({
+        chatId,
+        clientName: context.clientName || 'Cliente',
+        reason,
+        priority: result.confidence > 0.8 ? 'high' : 'medium',
+        data: {
+          detectionResult: result,
+          message
+        }
+      });
+    }
+
+    return result;
+  } catch (error) {
+    logger.error(`Error al detectar necesidad de asistencia humana: ${error.message}`);
+    return {
+      needsHumanAssistance: false,
+      error: error.message
+    };
   }
 }
 
@@ -396,16 +448,16 @@ async function sendHumanAssistanceNotification(options = {}) {
       priority = 'high',
       data = {}
     } = options;
-    
+
     // Validar datos requeridos
     if (!chatId) {
       throw new Error('El ID de chat es obligatorio');
     }
-    
+
     // Crear título y cuerpo de la notificación
     const title = '¡Se requiere asistencia humana!';
     const body = `${clientName} (${chatId}) necesita atención: ${reason}`;
-    
+
     // Enviar notificación
     return await sendNotification({
       title,
@@ -435,12 +487,44 @@ async function sendHumanAssistanceNotification(options = {}) {
   }
 }
 
+/**
+ * Proporciona retroalimentación sobre una detección de asistencia humana
+ * @param {Object} options - Opciones para la retroalimentación
+ * @returns {Promise<boolean>} - true si la retroalimentación se procesó correctamente
+ */
+async function provideHumanAssistanceFeedback(options = {}) {
+  try {
+    const {
+      message,
+      actualNeedsHuman,
+      context = {}
+    } = options;
+
+    // Validar datos requeridos
+    if (!message || actualNeedsHuman === undefined) {
+      throw new Error('El mensaje y el valor de retroalimentación son obligatorios');
+    }
+
+    // Proporcionar retroalimentación al detector
+    const result = humanAssistanceDetector.provideFeedback(message, actualNeedsHuman, context);
+
+    return result;
+  } catch (error) {
+    logger.error(`Error al proporcionar retroalimentación: ${error.message}`);
+    return false;
+  }
+}
+
 module.exports = {
   initialize,
   sendNotification,
   sendHumanAssistanceNotification,
+  checkHumanAssistanceNeeded,
+  provideHumanAssistanceFeedback,
   getNotificationHistory,
   markAsRead,
   markAllAsRead,
-  updateConfig
+  updateConfig,
+  // Exponer el detector para pruebas y configuración avanzada
+  humanAssistanceDetector
 };
