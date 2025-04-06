@@ -11,6 +11,14 @@ const log = require('electron-log');
 const si = require('systeminformation');
 const open = require('open');
 
+// Importar gestor de autenticación
+let authManager;
+try {
+  authManager = require('../auth-manager');
+} catch (error) {
+  log.error(`Error al cargar gestor de autenticación: ${error.message}`);
+}
+
 // Importar gestor de licencias
 let licenseManager;
 try {
@@ -523,10 +531,10 @@ function createLoginWindow() {
 
   // Crear la ventana de login
   loginWindow = new BrowserWindow({
-    width: 450,
-    height: 600,
-    minWidth: 400,
-    minHeight: 550,
+    width: 550,
+    height: 700,
+    minWidth: 500,
+    minHeight: 650,
     icon: appConfig.icon,
     webPreferences: {
       nodeIntegration: true,
@@ -550,6 +558,18 @@ function createLoginWindow() {
   loginWindow.once('ready-to-show', () => {
     loginWindow.show();
     loginWindow.focus();
+
+    // Enviar datos de autenticación a la ventana de login
+    if (authManager) {
+      authManager.generateQRCode().then(qrCode => {
+        loginWindow.webContents.send('auth-data', {
+          qrCode,
+          status: authManager.getStatus()
+        });
+      }).catch(error => {
+        log.error(`Error al generar código QR: ${error.message}`);
+      });
+    }
   });
 
   // Emitir evento cuando la ventana se cierre
@@ -557,7 +577,7 @@ function createLoginWindow() {
     loginWindow = null;
 
     // Si no hay licencia válida, cerrar la aplicación
-    if (!isLicenseValid && !mainWindow) {
+    if (!authManager.getStatus().license.status === 'active' && !mainWindow) {
       app.quit();
     }
   });
@@ -1039,6 +1059,25 @@ function showAboutDialog() {
 // Función para verificar licencia e iniciar aplicación
 async function checkLicenseAndStart() {
   try {
+    // Inicializar gestor de autenticación
+    if (authManager) {
+      await authManager.initialize();
+      log.info('Gestor de autenticación inicializado correctamente');
+
+      // Verificar si hay una licencia activa
+      const authStatus = authManager.getStatus();
+      log.info(`Estado de autenticación: ${JSON.stringify(authStatus)}`);
+
+      // Si no hay licencia activa o está expirada, mostrar ventana de login
+      if (authStatus.license.status !== 'active') {
+        log.info('No hay licencia activa. Mostrando ventana de login.');
+        createLoginWindow();
+        return;
+      }
+    } else {
+      log.warn('Gestor de autenticación no disponible.');
+    }
+
     // Inicializar gestor de notificaciones
     if (notificationManager) {
       await notificationManager.initialize();
@@ -2407,3 +2446,125 @@ async function exportLogsToFile(logs, filePath) {
 }
 
 log.info('Archivo main.js cargado.');
+
+// --- Eventos para la autenticación ---
+
+// Evento para verificar código OTP
+ipcMain.on('verify-otp', (event, token) => {
+  if (!authManager) {
+    event.reply('verify-otp-result', {
+      success: false,
+      message: 'Gestor de autenticación no disponible'
+    });
+    return;
+  }
+
+  const isValid = authManager.authenticate(token);
+
+  if (isValid) {
+    log.info('Autenticación exitosa');
+
+    // Cerrar ventana de login
+    if (loginWindow) {
+      loginWindow.close();
+    }
+
+    // Crear ventana principal
+    createWindow();
+    createTray();
+
+    event.reply('verify-otp-result', {
+      success: true,
+      message: 'Autenticación exitosa'
+    });
+  } else {
+    log.warn('Autenticación fallida');
+
+    event.reply('verify-otp-result', {
+      success: false,
+      message: 'Código OTP inválido'
+    });
+  }
+});
+
+// Evento para activar licencia
+ipcMain.on('activate-license', async (event, licenseKey) => {
+  if (!authManager) {
+    event.reply('activate-license-result', {
+      success: false,
+      message: 'Gestor de autenticación no disponible'
+    });
+    return;
+  }
+
+  const result = await authManager.activateLicense(licenseKey);
+
+  if (result) {
+    log.info('Licencia activada correctamente');
+
+    event.reply('activate-license-result', {
+      success: true,
+      message: 'Licencia activada correctamente',
+      status: authManager.getStatus()
+    });
+  } else {
+    log.warn('Error al activar licencia');
+
+    event.reply('activate-license-result', {
+      success: false,
+      message: 'Error al activar licencia',
+      status: authManager.getStatus()
+    });
+  }
+});
+
+// Evento para generar licencia (solo para desarrollo)
+ipcMain.on('generate-license', (event, expiryDays) => {
+  if (!authManager) {
+    event.reply('generate-license-result', {
+      success: false,
+      message: 'Gestor de autenticación no disponible'
+    });
+    return;
+  }
+
+  const licenseKey = authManager.generateLicenseKey(expiryDays);
+
+  event.reply('generate-license-result', {
+    success: true,
+    licenseKey
+  });
+});
+
+// Evento para verificar estado de autenticación
+ipcMain.on('check-auth-status', (event) => {
+  if (!authManager) {
+    event.reply('auth-status', {
+      authenticated: false,
+      license: {
+        status: 'inactive',
+        expiry: null
+      }
+    });
+    return;
+  }
+
+  event.reply('auth-status', authManager.getStatus());
+});
+
+// Evento para cerrar sesión
+ipcMain.on('logout', (event) => {
+  if (!authManager) {
+    return;
+  }
+
+  authManager.logout();
+
+  // Cerrar ventana principal
+  if (mainWindow) {
+    mainWindow.close();
+  }
+
+  // Mostrar ventana de login
+  createLoginWindow();
+});

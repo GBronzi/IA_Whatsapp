@@ -17,14 +17,14 @@
             --gray-color: #f5f5f5;
             --dark-gray: #333;
         }
-        
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
-        
+
         body {
             background-color: #f5f5f5;
             color: #333;
@@ -34,7 +34,7 @@
             align-items: center;
             justify-content: center;
         }
-        
+
         .login-container {
             background-color: white;
             border-radius: 8px;
@@ -43,31 +43,31 @@
             padding: 30px;
             text-align: center;
         }
-        
+
         .logo {
             width: 80px;
             height: 80px;
             margin-bottom: 20px;
         }
-        
+
         h1 {
             color: var(--dark-color);
             margin-bottom: 20px;
             font-size: 24px;
         }
-        
+
         .form-group {
             margin-bottom: 20px;
             text-align: left;
         }
-        
+
         label {
             display: block;
             margin-bottom: 5px;
             font-weight: 500;
             color: #555;
         }
-        
+
         input[type="text"],
         input[type="password"] {
             width: 100%;
@@ -76,14 +76,14 @@
             border-radius: 4px;
             font-size: 16px;
         }
-        
+
         input[type="text"]:focus,
         input[type="password"]:focus {
             border-color: var(--primary-color);
             outline: none;
             box-shadow: 0 0 0 2px rgba(37, 211, 102, 0.2);
         }
-        
+
         .btn {
             display: inline-block;
             padding: 12px 20px;
@@ -97,30 +97,30 @@
             transition: background-color 0.2s;
             width: 100%;
         }
-        
+
         .btn:hover {
             background-color: var(--secondary-color);
         }
-        
+
         .btn:disabled {
             background-color: #ccc;
             cursor: not-allowed;
         }
-        
+
         .error-message {
             color: var(--danger-color);
             margin-top: 15px;
             font-size: 14px;
             display: none;
         }
-        
+
         .success-message {
             color: var(--success-color);
             margin-top: 15px;
             font-size: 14px;
             display: none;
         }
-        
+
         .license-info {
             margin-top: 20px;
             padding: 15px;
@@ -129,34 +129,34 @@
             text-align: left;
             display: none;
         }
-        
+
         .license-info p {
             margin-bottom: 5px;
             font-size: 14px;
         }
-        
+
         .license-info .status {
             font-weight: bold;
         }
-        
+
         .license-info .valid {
             color: var(--success-color);
         }
-        
+
         .license-info .invalid {
             color: var(--danger-color);
         }
-        
+
         .license-info .offline {
             color: var(--warning-color);
         }
-        
+
         .footer {
             margin-top: 30px;
             font-size: 12px;
             color: #777;
         }
-        
+
         .loading {
             display: inline-block;
             width: 20px;
@@ -168,7 +168,7 @@
             margin-right: 10px;
             vertical-align: middle;
         }
-        
+
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
@@ -178,36 +178,63 @@
     <div class="login-container">
         <img src="assets/icon.svg" alt="Logo" class="logo">
         <h1>Asistente de Ventas WhatsApp</h1>
-        
-        <div id="login-form">
-            <div class="form-group">
-                <label for="activation-code">Código de Activación</label>
-                <input type="text" id="activation-code" placeholder="Ingresa tu código de activación">
+
+        <div id="login-tabs" style="display: flex; margin-bottom: 20px; border-bottom: 1px solid #ddd;">
+            <div id="auth-tab" class="tab active" style="padding: 10px 15px; cursor: pointer; border-bottom: 2px solid var(--primary-color);">Autenticación</div>
+            <div id="license-tab" class="tab" style="padding: 10px 15px; cursor: pointer; border-bottom: 2px solid transparent;">Licencia</div>
+        </div>
+
+        <div id="auth-content" class="tab-content" style="display: block;">
+            <div style="margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 4px; background-color: #f9f9f9; text-align: center;">
+                <p>Escanea este código QR con Google Authenticator:</p>
+                <img id="qr-code" style="max-width: 200px; margin: 10px auto;" src="" alt="Código QR">
+                <p style="font-size: 13px; color: #666;">Si no tienes Google Authenticator, descárgalo desde la App Store o Google Play.</p>
             </div>
-            
-            <button id="activate-btn" class="btn">Activar</button>
-            
+
+            <div class="form-group">
+                <label for="otp-code">Código de verificación:</label>
+                <input type="text" id="otp-code" placeholder="Ingresa el código de 6 dígitos">
+            </div>
+
+            <button id="verify-btn" class="btn">Verificar</button>
+
             <div id="error-message" class="error-message"></div>
             <div id="success-message" class="success-message"></div>
         </div>
-        
+
+        <div id="license-content" class="tab-content" style="display: none;">
+            <div class="form-group">
+                <label for="activation-code">Clave de licencia:</label>
+                <input type="text" id="activation-code" placeholder="Ingresa tu clave de licencia">
+            </div>
+
+            <button id="activate-btn" class="btn">Activar licencia</button>
+        </div>
+
         <div id="license-info" class="license-info">
             <p><strong>Estado de Licencia:</strong> <span id="license-status" class="status"></span></p>
             <p><strong>Cliente:</strong> <span id="client-name"></span></p>
             <p><strong>Expira:</strong> <span id="expires-at"></span></p>
             <p><strong>Características:</strong> <span id="features"></span></p>
-            
+
             <button id="continue-btn" class="btn" style="margin-top: 15px;">Continuar</button>
             <button id="deactivate-btn" class="btn" style="margin-top: 10px; background-color: var(--danger-color);">Desactivar Licencia</button>
         </div>
-        
+
         <div class="footer">
             © 2025 Tu Empresa - Todos los derechos reservados
         </div>
     </div>
-    
+
     <script>
         // Obtener referencias a elementos del DOM
+        const authTab = document.getElementById('auth-tab');
+        const licenseTab = document.getElementById('license-tab');
+        const authContent = document.getElementById('auth-content');
+        const licenseContent = document.getElementById('license-content');
+        const qrCodeImg = document.getElementById('qr-code');
+        const otpCodeInput = document.getElementById('otp-code');
+        const verifyBtn = document.getElementById('verify-btn');
         const activationCodeInput = document.getElementById('activation-code');
         const activateBtn = document.getElementById('activate-btn');
         const errorMessage = document.getElementById('error-message');
@@ -219,150 +246,218 @@
         const features = document.getElementById('features');
         const continueBtn = document.getElementById('continue-btn');
         const deactivateBtn = document.getElementById('deactivate-btn');
-        const loginForm = document.getElementById('login-form');
-        
+
         // Electron IPC
         const { ipcRenderer } = require('electron');
-        
-        // Verificar estado de licencia al cargar
-        document.addEventListener('DOMContentLoaded', () => {
-            ipcRenderer.send('check-license');
+
+        // Cambiar entre pestañas
+        authTab.addEventListener('click', () => {
+            authTab.classList.add('active');
+            licenseTab.classList.remove('active');
+            authTab.style.borderBottom = '2px solid var(--primary-color)';
+            licenseTab.style.borderBottom = '2px solid transparent';
+            authContent.style.display = 'block';
+            licenseContent.style.display = 'none';
+            licenseInfo.style.display = 'none';
         });
-        
-        // Manejar respuesta de verificación de licencia
-        ipcRenderer.on('license-status', (event, status) => {
-            if (status.isValid) {
-                // Mostrar información de licencia
-                showLicenseInfo(status);
+
+        licenseTab.addEventListener('click', () => {
+            licenseTab.classList.add('active');
+            authTab.classList.remove('active');
+            licenseTab.style.borderBottom = '2px solid var(--primary-color)';
+            authTab.style.borderBottom = '2px solid transparent';
+            licenseContent.style.display = 'block';
+            authContent.style.display = 'none';
+
+            // Verificar si hay licencia activa
+            ipcRenderer.send('check-auth-status');
+        });
+
+        // Verificar estado de autenticación al cargar
+        document.addEventListener('DOMContentLoaded', () => {
+            ipcRenderer.send('check-auth-status');
+        });
+
+        // Recibir datos de autenticación
+        ipcRenderer.on('auth-data', (event, data) => {
+            // Mostrar código QR
+            if (data.qrCode) {
+                qrCodeImg.src = data.qrCode;
+            }
+
+            // Actualizar información de licencia
+            updateLicenseInfo(data.status);
+        });
+
+        // Manejar respuesta de verificación de estado
+        ipcRenderer.on('auth-status', (event, status) => {
+            updateLicenseInfo(status);
+
+            // Si hay licencia activa, mostrar información
+            if (status.license && status.license.status === 'active') {
+                licenseInfo.style.display = 'block';
+                licenseContent.style.display = 'none';
             } else {
-                // Mostrar formulario de activación
-                loginForm.style.display = 'block';
                 licenseInfo.style.display = 'none';
+                licenseContent.style.display = 'block';
             }
         });
-        
-        // Evento de clic en botón de activación
-        activateBtn.addEventListener('click', () => {
-            const activationCode = activationCodeInput.value.trim();
-            
-            if (!activationCode) {
-                showError('Por favor, ingresa un código de activación válido');
+
+        // Evento de clic en botón de verificación OTP
+        verifyBtn.addEventListener('click', () => {
+            const token = otpCodeInput.value.trim();
+
+            if (!token) {
+                showError('Por favor, ingresa un código de verificación');
                 return;
             }
-            
+
             // Mostrar estado de carga
-            activateBtn.disabled = true;
-            activateBtn.innerHTML = '<span class="loading"></span> Activando...';
-            
-            // Enviar código de activación
-            ipcRenderer.send('activate-license', activationCode);
+            verifyBtn.disabled = true;
+            verifyBtn.innerHTML = '<span class="loading"></span> Verificando...';
+
+            // Enviar código OTP
+            ipcRenderer.send('verify-otp', token);
         });
-        
-        // Manejar respuesta de activación
-        ipcRenderer.on('activation-result', (event, result) => {
+
+        // Recibir resultado de verificación OTP
+        ipcRenderer.on('verify-otp-result', (event, result) => {
             // Restaurar botón
-            activateBtn.disabled = false;
-            activateBtn.textContent = 'Activar';
-            
+            verifyBtn.disabled = false;
+            verifyBtn.textContent = 'Verificar';
+
             if (result.success) {
-                // Mostrar mensaje de éxito
+                // Autenticación exitosa
                 showSuccess(result.message);
-                
-                // Mostrar información de licencia
-                setTimeout(() => {
-                    showLicenseInfo(result.licenseInfo);
-                }, 1500);
             } else {
-                // Mostrar mensaje de error
+                // Autenticación fallida
                 showError(result.message);
             }
         });
-        
+
+        // Evento de clic en botón de activación
+        activateBtn.addEventListener('click', () => {
+            const licenseKey = activationCodeInput.value.trim();
+
+            if (!licenseKey) {
+                showError('Por favor, ingresa una clave de licencia válida');
+                return;
+            }
+
+            // Mostrar estado de carga
+            activateBtn.disabled = true;
+            activateBtn.innerHTML = '<span class="loading"></span> Activando...';
+
+            // Enviar clave de licencia
+            ipcRenderer.send('activate-license', licenseKey);
+        });
+
+        // Recibir resultado de activación de licencia
+        ipcRenderer.on('activate-license-result', (event, result) => {
+            // Restaurar botón
+            activateBtn.disabled = false;
+            activateBtn.textContent = 'Activar licencia';
+
+            if (result.success) {
+                // Activación exitosa
+                showSuccess(result.message);
+
+                // Actualizar información de licencia
+                updateLicenseInfo(result.status);
+
+                // Mostrar información de licencia
+                setTimeout(() => {
+                    licenseContent.style.display = 'none';
+                    licenseInfo.style.display = 'block';
+                }, 1500);
+            } else {
+                // Activación fallida
+                showError(result.message);
+            }
+        });
+
         // Evento de clic en botón de continuar
         continueBtn.addEventListener('click', () => {
             ipcRenderer.send('continue-to-main');
         });
-        
+
         // Evento de clic en botón de desactivación
         deactivateBtn.addEventListener('click', () => {
             if (confirm('¿Estás seguro de que deseas desactivar la licencia? Esta acción no se puede deshacer.')) {
-                ipcRenderer.send('deactivate-license');
+                ipcRenderer.send('revoke-license');
             }
         });
-        
-        // Manejar respuesta de desactivación
-        ipcRenderer.on('deactivation-result', (event, result) => {
-            if (result.success) {
-                // Mostrar formulario de activación
-                loginForm.style.display = 'block';
-                licenseInfo.style.display = 'none';
-                
-                // Limpiar campo de código
-                activationCodeInput.value = '';
-                
-                // Mostrar mensaje de éxito
-                showSuccess(result.message);
-            } else {
-                // Mostrar mensaje de error
-                alert(`Error al desactivar licencia: ${result.message}`);
-            }
-        });
-        
+
         // Función para mostrar mensaje de error
         function showError(message) {
             errorMessage.textContent = message;
             errorMessage.style.display = 'block';
             successMessage.style.display = 'none';
-            
+
             // Ocultar después de 5 segundos
             setTimeout(() => {
                 errorMessage.style.display = 'none';
             }, 5000);
         }
-        
+
         // Función para mostrar mensaje de éxito
         function showSuccess(message) {
             successMessage.textContent = message;
             successMessage.style.display = 'block';
             errorMessage.style.display = 'none';
-            
+
             // Ocultar después de 5 segundos
             setTimeout(() => {
                 successMessage.style.display = 'none';
             }, 5000);
         }
-        
-        // Función para mostrar información de licencia
-        function showLicenseInfo(info) {
-            // Ocultar formulario y mostrar información
-            loginForm.style.display = 'none';
-            licenseInfo.style.display = 'block';
-            
-            // Actualizar información
-            if (info.offlineMode) {
-                licenseStatus.textContent = 'Activa (Modo Offline)';
-                licenseStatus.className = 'status offline';
-            } else {
-                licenseStatus.textContent = info.isValid ? 'Activa' : 'Inactiva';
-                licenseStatus.className = info.isValid ? 'status valid' : 'status invalid';
+
+        // Función para actualizar información de licencia
+        function updateLicenseInfo(status) {
+            if (!status || !status.license) return;
+
+            const license = status.license;
+
+            // Actualizar estado
+            let statusText = '';
+            let statusClass = '';
+
+            switch (license.status) {
+                case 'active':
+                    statusText = 'Activa';
+                    statusClass = 'valid';
+                    break;
+                case 'inactive':
+                    statusText = 'Inactiva';
+                    statusClass = 'invalid';
+                    break;
+                case 'expired':
+                    statusText = 'Expirada';
+                    statusClass = 'offline';
+                    break;
+                default:
+                    statusText = 'Desconocido';
+                    statusClass = 'invalid';
             }
-            
-            clientName.textContent = info.clientName || 'No disponible';
-            
-            // Formatear fecha de expiración
-            if (info.expiresAt) {
-                const expDate = new Date(info.expiresAt);
+
+            licenseStatus.textContent = statusText;
+            licenseStatus.className = `status ${statusClass}`;
+
+            // Actualizar nombre de cliente
+            clientName.textContent = 'Usuario autenticado';
+
+            // Actualizar fecha de expiración
+            if (license.expiry) {
+                const expDate = new Date(license.expiry);
                 expiresAt.textContent = expDate.toLocaleDateString();
+            } else if (license.status === 'active') {
+                expiresAt.textContent = 'Licencia permanente';
             } else {
                 expiresAt.textContent = 'No disponible';
             }
-            
-            // Mostrar características
-            if (info.features && info.features.length > 0) {
-                features.textContent = info.features.join(', ');
-            } else {
-                features.textContent = 'Todas las características';
-            }
+
+            // Actualizar características
+            features.textContent = 'Todas las características';
         }
     </script>
 </body>
