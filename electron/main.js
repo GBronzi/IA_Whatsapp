@@ -2464,6 +2464,29 @@ ipcMain.on('verify-otp', (event, token) => {
   if (isValid) {
     log.info('Autenticación exitosa');
 
+    // Generar códigos de recuperación si no existen
+    if (!authManager.getStatus().backupCodes || authManager.getStatus().backupCodes.length === 0) {
+      authManager.generateRecoveryCodes().then(codes => {
+        log.info(`Generados ${codes.length} códigos de recuperación`);
+
+        // Mostrar códigos al usuario
+        dialog.showMessageBox(loginWindow, {
+          type: 'info',
+          title: 'Códigos de recuperación',
+          message: 'Guarda estos códigos de recuperación en un lugar seguro. Los necesitarás si pierdes acceso a Google Authenticator.',
+          detail: codes.join('\n'),
+          buttons: ['Copiar al portapapeles', 'Entendido'],
+          defaultId: 1,
+          cancelId: 1
+        }).then(result => {
+          if (result.response === 0) {
+            // Copiar al portapapeles
+            require('electron').clipboard.writeText(codes.join('\n'));
+          }
+        });
+      });
+    }
+
     // Cerrar ventana de login
     if (loginWindow) {
       loginWindow.close();
@@ -2567,4 +2590,107 @@ ipcMain.on('logout', (event) => {
 
   // Mostrar ventana de login
   createLoginWindow();
+});
+
+// Evento para verificar código de recuperación
+ipcMain.on('verify-recovery-code', async (event, code) => {
+  if (!authManager) {
+    event.reply('verify-recovery-code-result', {
+      success: false,
+      message: 'Gestor de autenticación no disponible'
+    });
+    return;
+  }
+
+  const isValid = await authManager.verifyRecoveryCode(code);
+
+  if (isValid) {
+    log.info('Código de recuperación verificado correctamente');
+
+    // Contar códigos restantes
+    const status = authManager.getStatus();
+    const remainingCodes = status.backupCodes ? status.backupCodes.filter(c => !c.used).length : 0;
+
+    // Cerrar ventana de login
+    if (loginWindow) {
+      loginWindow.close();
+    }
+
+    // Crear ventana principal
+    createWindow();
+    createTray();
+
+    event.reply('verify-recovery-code-result', {
+      success: true,
+      message: 'Código de recuperación verificado correctamente',
+      remainingCodes
+    });
+  } else {
+    log.warn('Verificación de código de recuperación fallida');
+
+    event.reply('verify-recovery-code-result', {
+      success: false,
+      message: 'Código de recuperación inválido o ya utilizado'
+    });
+  }
+});
+
+// Evento para recuperar licencia
+ipcMain.on('recover-license', async (event, userName) => {
+  if (!authManager) {
+    event.reply('recover-license-result', {
+      success: false,
+      message: 'Gestor de autenticación no disponible'
+    });
+    return;
+  }
+
+  const result = await authManager.recoverLicense(userName);
+
+  if (result) {
+    log.info('Licencia recuperada correctamente');
+
+    event.reply('recover-license-result', {
+      success: true,
+      message: 'Licencia recuperada correctamente',
+      status: authManager.getStatus()
+    });
+  } else {
+    log.warn('Recuperación de licencia fallida');
+
+    event.reply('recover-license-result', {
+      success: false,
+      message: 'No se pudo recuperar la licencia. Verifica tu nombre de usuario o contacta con soporte.'
+    });
+  }
+});
+
+// Evento para revocar licencia
+ipcMain.on('revoke-license', async (event) => {
+  if (!authManager) {
+    return;
+  }
+
+  const result = await authManager.revokeLicense();
+
+  if (result) {
+    log.info('Licencia revocada correctamente');
+
+    // Cerrar ventana principal
+    if (mainWindow) {
+      mainWindow.close();
+    }
+
+    // Mostrar ventana de login
+    createLoginWindow();
+  } else {
+    log.warn('Error al revocar licencia');
+
+    dialog.showMessageBox(mainWindow || null, {
+      type: 'error',
+      title: 'Error',
+      message: 'Error al revocar licencia',
+      detail: 'No se pudo revocar la licencia. Inténtalo de nuevo más tarde.'
+    });
+  }
 });

@@ -182,6 +182,7 @@
         <div id="login-tabs" style="display: flex; margin-bottom: 20px; border-bottom: 1px solid #ddd;">
             <div id="auth-tab" class="tab active" style="padding: 10px 15px; cursor: pointer; border-bottom: 2px solid var(--primary-color);">Autenticación</div>
             <div id="license-tab" class="tab" style="padding: 10px 15px; cursor: pointer; border-bottom: 2px solid transparent;">Licencia</div>
+            <div id="recovery-tab" class="tab" style="padding: 10px 15px; cursor: pointer; border-bottom: 2px solid transparent;">Recuperación</div>
         </div>
 
         <div id="auth-content" class="tab-content" style="display: block;">
@@ -209,6 +210,32 @@
             </div>
 
             <button id="activate-btn" class="btn">Activar licencia</button>
+        </div>
+
+        <div id="recovery-content" class="tab-content" style="display: none;">
+            <div style="margin-bottom: 20px;">
+                <h3 style="font-size: 18px; margin-bottom: 10px;">Códigos de recuperación</h3>
+                <p style="font-size: 14px; color: #666; margin-bottom: 15px;">Utiliza uno de tus códigos de recuperación si no puedes acceder a Google Authenticator.</p>
+
+                <div class="form-group">
+                    <label for="recovery-code">Código de recuperación:</label>
+                    <input type="text" id="recovery-code" placeholder="Ingresa un código de recuperación">
+                </div>
+
+                <button id="verify-recovery-btn" class="btn">Verificar código</button>
+            </div>
+
+            <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd;">
+                <h3 style="font-size: 18px; margin-bottom: 10px;">Recuperar licencia</h3>
+                <p style="font-size: 14px; color: #666; margin-bottom: 15px;">Si has cambiado de dispositivo o reinstalado la aplicación, puedes recuperar tu licencia.</p>
+
+                <div class="form-group">
+                    <label for="recovery-username">Nombre de usuario:</label>
+                    <input type="text" id="recovery-username" placeholder="Ingresa tu nombre de usuario">
+                </div>
+
+                <button id="recover-license-btn" class="btn">Recuperar licencia</button>
+            </div>
         </div>
 
         <div id="license-info" class="license-info">
@@ -250,27 +277,53 @@
         // Electron IPC
         const { ipcRenderer } = require('electron');
 
+        const recoveryTab = document.getElementById('recovery-tab');
+        const recoveryContent = document.getElementById('recovery-content');
+        const recoveryCodeInput = document.getElementById('recovery-code');
+        const verifyRecoveryBtn = document.getElementById('verify-recovery-btn');
+        const recoveryUsernameInput = document.getElementById('recovery-username');
+        const recoverLicenseBtn = document.getElementById('recover-license-btn');
+
+        // Función para resetear todas las pestañas
+        function resetTabs() {
+            // Resetear estilos de pestañas
+            authTab.classList.remove('active');
+            licenseTab.classList.remove('active');
+            recoveryTab.classList.remove('active');
+            authTab.style.borderBottom = '2px solid transparent';
+            licenseTab.style.borderBottom = '2px solid transparent';
+            recoveryTab.style.borderBottom = '2px solid transparent';
+
+            // Ocultar todos los contenidos
+            authContent.style.display = 'none';
+            licenseContent.style.display = 'none';
+            recoveryContent.style.display = 'none';
+            licenseInfo.style.display = 'none';
+        }
+
         // Cambiar entre pestañas
         authTab.addEventListener('click', () => {
+            resetTabs();
             authTab.classList.add('active');
-            licenseTab.classList.remove('active');
             authTab.style.borderBottom = '2px solid var(--primary-color)';
-            licenseTab.style.borderBottom = '2px solid transparent';
             authContent.style.display = 'block';
-            licenseContent.style.display = 'none';
-            licenseInfo.style.display = 'none';
         });
 
         licenseTab.addEventListener('click', () => {
+            resetTabs();
             licenseTab.classList.add('active');
-            authTab.classList.remove('active');
             licenseTab.style.borderBottom = '2px solid var(--primary-color)';
-            authTab.style.borderBottom = '2px solid transparent';
             licenseContent.style.display = 'block';
-            authContent.style.display = 'none';
 
             // Verificar si hay licencia activa
             ipcRenderer.send('check-auth-status');
+        });
+
+        recoveryTab.addEventListener('click', () => {
+            resetTabs();
+            recoveryTab.classList.add('active');
+            recoveryTab.style.borderBottom = '2px solid var(--primary-color)';
+            recoveryContent.style.display = 'block';
         });
 
         // Verificar estado de autenticación al cargar
@@ -385,6 +438,90 @@
         deactivateBtn.addEventListener('click', () => {
             if (confirm('¿Estás seguro de que deseas desactivar la licencia? Esta acción no se puede deshacer.')) {
                 ipcRenderer.send('revoke-license');
+            }
+        });
+
+        // Evento de clic en botón de verificación de código de recuperación
+        verifyRecoveryBtn.addEventListener('click', () => {
+            const code = recoveryCodeInput.value.trim();
+
+            if (!code) {
+                showError('Por favor, ingresa un código de recuperación');
+                return;
+            }
+
+            // Mostrar estado de carga
+            verifyRecoveryBtn.disabled = true;
+            verifyRecoveryBtn.innerHTML = '<span class="loading"></span> Verificando...';
+
+            // Enviar código de recuperación
+            ipcRenderer.send('verify-recovery-code', code);
+        });
+
+        // Evento de clic en botón de recuperación de licencia
+        recoverLicenseBtn.addEventListener('click', () => {
+            const username = recoveryUsernameInput.value.trim();
+
+            if (!username) {
+                showError('Por favor, ingresa tu nombre de usuario');
+                return;
+            }
+
+            // Mostrar estado de carga
+            recoverLicenseBtn.disabled = true;
+            recoverLicenseBtn.innerHTML = '<span class="loading"></span> Recuperando...';
+
+            // Enviar solicitud de recuperación
+            ipcRenderer.send('recover-license', username);
+        });
+
+        // Recibir resultado de verificación de código de recuperación
+        ipcRenderer.on('verify-recovery-code-result', (event, result) => {
+            // Restaurar botón
+            verifyRecoveryBtn.disabled = false;
+            verifyRecoveryBtn.textContent = 'Verificar código';
+
+            if (result.success) {
+                // Verificación exitosa
+                showSuccess(result.message || 'Código verificado correctamente');
+
+                // Limpiar campo
+                recoveryCodeInput.value = '';
+
+                // Mostrar códigos de recuperación restantes si los hay
+                if (result.remainingCodes) {
+                    const codesText = `Te quedan ${result.remainingCodes} códigos de recuperación.`;
+                    showSuccess(codesText);
+                }
+            } else {
+                // Verificación fallida
+                showError(result.message || 'Código de recuperación inválido');
+            }
+        });
+
+        // Recibir resultado de recuperación de licencia
+        ipcRenderer.on('recover-license-result', (event, result) => {
+            // Restaurar botón
+            recoverLicenseBtn.disabled = false;
+            recoverLicenseBtn.textContent = 'Recuperar licencia';
+
+            if (result.success) {
+                // Recuperación exitosa
+                showSuccess(result.message || 'Licencia recuperada correctamente');
+
+                // Limpiar campo
+                recoveryUsernameInput.value = '';
+
+                // Actualizar información de licencia
+                updateLicenseInfo(result.status);
+
+                // Cambiar a pestaña de licencia
+                setTimeout(() => {
+                    licenseTab.click();
+                }, 1500);
+            } else {
+                // Recuperación fallida
+                showError(result.message || 'Error al recuperar licencia');
             }
         });
 

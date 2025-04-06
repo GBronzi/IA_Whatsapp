@@ -1,6 +1,6 @@
 /**
  * auth-manager.js - Módulo para gestionar la autenticación con Google Authenticator
- * 
+ *
  * Este módulo proporciona funciones para generar y verificar códigos OTP (One-Time Password)
  * compatibles con Google Authenticator, así como para gestionar licencias persistentes.
  */
@@ -8,6 +8,7 @@
 const fs = require('fs').promises;
 const path = require('path');
 const crypto = require('crypto');
+const os = require('os');
 const { authenticator } = require('otplib');
 const QRCode = require('qrcode');
 const logger = require('./logger');
@@ -21,7 +22,10 @@ const DEFAULT_CONFIG = {
     licenseKey: '',
     licenseExpiry: null,
     licenseStatus: 'inactive',
+    recoveryKey: '',
+    backupCodes: [],
     licenseCheckUrl: process.env.LICENSE_CHECK_URL || 'https://example.com/api/license-check',
+    recoveryUrl: process.env.RECOVERY_URL || 'https://example.com/api/recover-license',
     configFile: path.join(__dirname, 'auth-config.json')
 };
 
@@ -38,20 +42,20 @@ async function initialize(config = {}) {
     try {
         // Combinar configuración por defecto con la personalizada
         authConfig = { ...DEFAULT_CONFIG, ...config };
-        
+
         // Cargar configuración desde archivo
         await loadConfig();
-        
+
         // Generar clave secreta si no existe
         if (!authConfig.secretKey) {
             authConfig.secretKey = generateSecretKey();
             await saveConfig();
             logger.info('Auth Manager: Clave secreta generada');
         }
-        
+
         // Verificar licencia
         await checkLicense();
-        
+
         return module.exports;
     } catch (error) {
         logger.error(`Auth Manager: Error al inicializar: ${error.message}`);
@@ -169,26 +173,46 @@ function logout() {
 }
 
 /**
- * Genera una clave de licencia
+ * Genera una clave de licencia con cifrado adicional
  * @param {number} expiryDays - Días hasta la expiración (0 para licencia permanente)
  * @returns {string} - Clave de licencia
  */
 function generateLicenseKey(expiryDays = 0) {
+    // Generar un IV (Vector de Inicialización) aleatorio
+    const iv = crypto.randomBytes(16);
+
+    // Datos de la licencia
     const data = {
         appName: authConfig.appName,
         userName: authConfig.userName,
         secretKey: authConfig.secretKey,
+        deviceId: crypto.createHash('sha256').update(os.hostname() + os.userInfo().username).digest('hex'),
         timestamp: Date.now()
     };
-    
-    const expiryDate = expiryDays > 0 
+
+    // Establecer fecha de expiración
+    const expiryDate = expiryDays > 0
         ? new Date(Date.now() + expiryDays * 24 * 60 * 60 * 1000).toISOString()
         : 'permanent';
-    
+
+    // Crear cadena de datos con fecha de expiración
     const dataString = JSON.stringify({ ...data, expiryDate });
-    const hash = crypto.createHash('sha256').update(dataString).digest('hex');
-    
-    return `${Buffer.from(dataString).toString('base64')}.${hash.substring(0, 8)}`;
+
+    // Crear clave de cifrado a partir de la clave secreta
+    const key = crypto.createHash('sha256').update(authConfig.secretKey).digest();
+
+    // Cifrar los datos
+    const cipher = crypto.createCipheriv('aes-256-cbc', key, iv);
+    let encrypted = cipher.update(dataString, 'utf8', 'base64');
+    encrypted += cipher.final('base64');
+
+    // Crear hash de verificación
+    const hash = crypto.createHmac('sha256', authConfig.secretKey)
+        .update(encrypted + iv.toString('base64'))
+        .digest('hex');
+
+    // Combinar IV, datos cifrados y hash en la clave de licencia
+    return `${iv.toString('base64')}.${encrypted}.${hash.substring(0, 16)}`;
 }
 
 /**
@@ -200,41 +224,125 @@ async function activateLicense(licenseKey) {
     try {
         // Verificar formato de la licencia
         const parts = licenseKey.split('.');
-        if (parts.length !== 2) {
-            logger.error('Auth Manager: Formato de licencia inválido');
-            return false;
-        }
-        
-        // Decodificar datos de la licencia
-        const dataString = Buffer.from(parts[0], 'base64').toString('utf8');
-        const data = JSON.parse(dataString);
-        
-        // Verificar hash
-        const hash = crypto.createHash('sha256').update(dataString).digest('hex');
-        if (hash.substring(0, 8) !== parts[1]) {
-            logger.error('Auth Manager: Hash de licencia inválido');
-            return false;
-        }
-        
-        // Verificar expiración
-        if (data.expiryDate !== 'permanent') {
-            const expiryDate = new Date(data.expiryDate);
-            if (expiryDate < new Date()) {
-                logger.error('Auth Manager: Licencia expirada');
+
+        // Manejar formato antiguo (base64.hash)
+        if (parts.length === 2) {
+            try {
+                // Decodificar datos de la licencia
+                const dataString = Buffer.from(parts[0], 'base64').toString('utf8');
+                const data = JSON.parse(dataString);
+
+                // Verificar hash
+                const hash = crypto.createHash('sha256').update(dataString).digest('hex');
+                if (hash.substring(0, 8) !== parts[1]) {
+                    logger.error('Auth Manager: Hash de licencia inválido');
+                    return false;
+                }
+
+                // Verificar expiración
+                if (data.expiryDate !== 'permanent') {
+                    const expiryDate = new Date(data.expiryDate);
+                    if (expiryDate < new Date()) {
+                        logger.error('Auth Manager: Licencia expirada');
+                        return false;
+                    }
+                    authConfig.licenseExpiry = data.expiryDate;
+                } else {
+                    authConfig.licenseExpiry = null; // Licencia permanente
+                }
+
+                // Guardar licencia
+                authConfig.licenseKey = licenseKey;
+                authConfig.licenseStatus = 'active';
+                await saveConfig();
+
+                logger.info('Auth Manager: Licencia activada correctamente (formato antiguo)');
+                return true;
+            } catch (error) {
+                logger.error(`Auth Manager: Error al procesar licencia en formato antiguo: ${error.message}`);
                 return false;
             }
-            authConfig.licenseExpiry = data.expiryDate;
-        } else {
-            authConfig.licenseExpiry = null; // Licencia permanente
         }
-        
-        // Guardar licencia
-        authConfig.licenseKey = licenseKey;
-        authConfig.licenseStatus = 'active';
-        await saveConfig();
-        
-        logger.info('Auth Manager: Licencia activada correctamente');
-        return true;
+
+        // Manejar formato nuevo (iv.encrypted.hash)
+        if (parts.length === 3) {
+            try {
+                // Extraer partes de la licencia
+                const iv = Buffer.from(parts[0], 'base64');
+                const encrypted = parts[1];
+                const hash = parts[2];
+
+                // Verificar hash
+                const calculatedHash = crypto.createHmac('sha256', authConfig.secretKey)
+                    .update(encrypted + parts[0])
+                    .digest('hex');
+
+                if (calculatedHash.substring(0, 16) !== hash) {
+                    logger.error('Auth Manager: Hash de licencia inválido');
+                    return false;
+                }
+
+                // Crear clave de cifrado a partir de la clave secreta
+                const key = crypto.createHash('sha256').update(authConfig.secretKey).digest();
+
+                // Descifrar los datos
+                const decipher = crypto.createDecipheriv('aes-256-cbc', key, iv);
+                let decrypted = decipher.update(encrypted, 'base64', 'utf8');
+                decrypted += decipher.final('utf8');
+
+                // Parsear datos descifrados
+                const data = JSON.parse(decrypted);
+
+                // Verificar expiración
+                if (data.expiryDate !== 'permanent') {
+                    const expiryDate = new Date(data.expiryDate);
+                    if (expiryDate < new Date()) {
+                        logger.error('Auth Manager: Licencia expirada');
+                        return false;
+                    }
+                    authConfig.licenseExpiry = data.expiryDate;
+                } else {
+                    authConfig.licenseExpiry = null; // Licencia permanente
+                }
+
+                // Verificar con el servidor remoto
+                try {
+                    const response = await axios.post(authConfig.licenseCheckUrl, {
+                        licenseKey,
+                        appName: authConfig.appName,
+                        userName: authConfig.userName,
+                        deviceId: crypto.createHash('sha256').update(os.hostname() + os.userInfo().username).digest('hex')
+                    });
+
+                    if (response.data && response.data.success) {
+                        logger.info('Auth Manager: Licencia verificada con el servidor');
+
+                        // Si el servidor envía una clave de recuperación, guardarla
+                        if (response.data.recoveryKey) {
+                            authConfig.recoveryKey = response.data.recoveryKey;
+                            logger.info('Auth Manager: Clave de recuperación guardada');
+                        }
+                    }
+                } catch (error) {
+                    logger.warn(`Auth Manager: No se pudo verificar la licencia con el servidor: ${error.message}`);
+                    logger.info('Auth Manager: Continuando con activación local');
+                }
+
+                // Guardar licencia
+                authConfig.licenseKey = licenseKey;
+                authConfig.licenseStatus = 'active';
+                await saveConfig();
+
+                logger.info('Auth Manager: Licencia activada correctamente');
+                return true;
+            } catch (error) {
+                logger.error(`Auth Manager: Error al procesar licencia: ${error.message}`);
+                return false;
+            }
+        }
+
+        logger.error('Auth Manager: Formato de licencia inválido');
+        return false;
     } catch (error) {
         logger.error(`Auth Manager: Error al activar licencia: ${error.message}`);
         return false;
@@ -252,7 +360,7 @@ async function checkLicense() {
             logger.warn('Auth Manager: No hay licencia activa');
             return false;
         }
-        
+
         // Verificar expiración local
         if (authConfig.licenseExpiry) {
             const expiryDate = new Date(authConfig.licenseExpiry);
@@ -263,7 +371,7 @@ async function checkLicense() {
                 return false;
             }
         }
-        
+
         // Verificar licencia con el servidor remoto
         try {
             const response = await axios.post(authConfig.licenseCheckUrl, {
@@ -271,23 +379,23 @@ async function checkLicense() {
                 appName: authConfig.appName,
                 userName: authConfig.userName
             });
-            
+
             if (response.data && response.data.valid) {
                 // Actualizar estado de la licencia
                 authConfig.licenseStatus = response.data.status || 'active';
-                
+
                 // Si el servidor envía una nueva fecha de expiración, actualizarla
                 if (response.data.expiryDate) {
                     authConfig.licenseExpiry = response.data.expiryDate;
                 }
-                
+
                 // Si el servidor envía una nueva clave de licencia, actualizarla
                 if (response.data.newLicenseKey) {
                     authConfig.licenseKey = response.data.newLicenseKey;
                 }
-                
+
                 await saveConfig();
-                
+
                 logger.info(`Auth Manager: Licencia verificada con el servidor: ${authConfig.licenseStatus}`);
                 return authConfig.licenseStatus === 'active';
             } else {
@@ -318,7 +426,7 @@ async function revokeLicense() {
         authConfig.licenseExpiry = null;
         authConfig.licenseStatus = 'inactive';
         await saveConfig();
-        
+
         logger.info('Auth Manager: Licencia revocada correctamente');
         return true;
     } catch (error) {
@@ -332,13 +440,19 @@ async function revokeLicense() {
  * @returns {Object} - Estado de autenticación y licencia
  */
 function getStatus() {
+    // Contar códigos de recuperación no utilizados
+    const unusedBackupCodes = authConfig.backupCodes ? authConfig.backupCodes.filter(code => !code.used).length : 0;
+
     return {
         authenticated: isAuthenticated,
         license: {
             key: authConfig.licenseKey ? `${authConfig.licenseKey.substring(0, 10)}...` : '',
             status: authConfig.licenseStatus,
             expiry: authConfig.licenseExpiry
-        }
+        },
+        backupCodes: authConfig.backupCodes,
+        unusedBackupCodes,
+        recoveryKey: authConfig.recoveryKey ? true : false
     };
 }
 
@@ -353,13 +467,127 @@ async function updateConfig(config) {
         if (config.appName) authConfig.appName = config.appName;
         if (config.userName) authConfig.userName = config.userName;
         if (config.licenseCheckUrl) authConfig.licenseCheckUrl = config.licenseCheckUrl;
-        
+
         await saveConfig();
-        
+
         logger.info('Auth Manager: Configuración actualizada correctamente');
         return true;
     } catch (error) {
         logger.error(`Auth Manager: Error al actualizar configuración: ${error.message}`);
+        return false;
+    }
+}
+
+/**
+ * Genera códigos de recuperación
+ * @param {number} count - Número de códigos a generar
+ * @returns {Promise<string[]>} - Array de códigos de recuperación
+ */
+async function generateRecoveryCodes(count = 8) {
+    try {
+        const codes = [];
+
+        // Generar códigos aleatorios
+        for (let i = 0; i < count; i++) {
+            const code = crypto.randomBytes(4).toString('hex').toUpperCase();
+            codes.push(`${code.substring(0, 4)}-${code.substring(4, 8)}`);
+        }
+
+        // Guardar códigos en la configuración
+        authConfig.backupCodes = codes.map(code => ({
+            code,
+            used: false
+        }));
+
+        await saveConfig();
+
+        logger.info(`Auth Manager: ${count} códigos de recuperación generados`);
+        return codes;
+    } catch (error) {
+        logger.error(`Auth Manager: Error al generar códigos de recuperación: ${error.message}`);
+        return [];
+    }
+}
+
+/**
+ * Verifica un código de recuperación
+ * @param {string} code - Código de recuperación
+ * @returns {Promise<boolean>} - true si el código es válido
+ */
+async function verifyRecoveryCode(code) {
+    try {
+        // Normalizar código
+        const normalizedCode = code.replace(/[^A-Za-z0-9]/g, '').toUpperCase();
+        const formattedCode = `${normalizedCode.substring(0, 4)}-${normalizedCode.substring(4, 8)}`;
+
+        // Buscar código en la lista
+        const codeIndex = authConfig.backupCodes.findIndex(c => c.code === formattedCode && !c.used);
+
+        if (codeIndex === -1) {
+            logger.warn('Auth Manager: Código de recuperación inválido o ya utilizado');
+            return false;
+        }
+
+        // Marcar código como utilizado
+        authConfig.backupCodes[codeIndex].used = true;
+        authConfig.backupCodes[codeIndex].usedAt = new Date().toISOString();
+
+        // Autenticar al usuario
+        isAuthenticated = true;
+
+        await saveConfig();
+
+        logger.info('Auth Manager: Código de recuperación verificado correctamente');
+        return true;
+    } catch (error) {
+        logger.error(`Auth Manager: Error al verificar código de recuperación: ${error.message}`);
+        return false;
+    }
+}
+
+/**
+ * Recupera una licencia usando la clave de recuperación
+ * @param {string} userName - Nombre de usuario
+ * @returns {Promise<boolean>} - true si la recuperación es exitosa
+ */
+async function recoverLicense(userName) {
+    try {
+        // Verificar si hay clave de recuperación
+        if (!authConfig.recoveryKey) {
+            logger.error('Auth Manager: No hay clave de recuperación disponible');
+            return false;
+        }
+
+        // Verificar con el servidor
+        try {
+            const response = await axios.post(authConfig.recoveryUrl, {
+                recoveryKey: authConfig.recoveryKey,
+                userName,
+                deviceId: crypto.createHash('sha256').update(os.hostname() + os.userInfo().username).digest('hex')
+            });
+
+            if (response.data && response.data.success) {
+                // Actualizar licencia
+                if (response.data.license) {
+                    authConfig.licenseKey = response.data.license.key;
+                    authConfig.licenseStatus = response.data.license.status;
+                    authConfig.licenseExpiry = response.data.license.expiryDate;
+
+                    await saveConfig();
+
+                    logger.info('Auth Manager: Licencia recuperada correctamente');
+                    return true;
+                }
+            } else {
+                logger.error(`Auth Manager: Error al recuperar licencia: ${response.data.message}`);
+                return false;
+            }
+        } catch (error) {
+            logger.error(`Auth Manager: Error al conectar con el servidor de recuperación: ${error.message}`);
+            return false;
+        }
+    } catch (error) {
+        logger.error(`Auth Manager: Error al recuperar licencia: ${error.message}`);
         return false;
     }
 }
@@ -375,5 +603,8 @@ module.exports = {
     checkLicense,
     revokeLicense,
     getStatus,
-    updateConfig
+    updateConfig,
+    generateRecoveryCodes,
+    verifyRecoveryCode,
+    recoverLicense
 };
