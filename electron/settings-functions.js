@@ -14,13 +14,13 @@ const log = require('electron-log');
 function loadSettings() {
   try {
     const settingsPath = path.join(app.getPath('userData'), 'settings.json');
-    
+
     // Verificar si existe el archivo de configuración
     if (fs.existsSync(settingsPath)) {
       // Leer y parsear el archivo
       const settingsData = fs.readFileSync(settingsPath, 'utf8');
       const settings = JSON.parse(settingsData);
-      
+
       log.info('Configuración de la aplicación cargada correctamente');
       return settings;
     } else {
@@ -43,10 +43,10 @@ function loadSettings() {
 function saveSettings(settings) {
   try {
     const settingsPath = path.join(app.getPath('userData'), 'settings.json');
-    
+
     // Guardar configuración en formato JSON
     fs.writeFileSync(settingsPath, JSON.stringify(settings, null, 2), 'utf8');
-    
+
     log.info('Configuración de la aplicación guardada correctamente');
     return true;
   } catch (error) {
@@ -85,19 +85,21 @@ function applySettings(settings, autoUpdater, mainWindow) {
         openAtLogin: settings.startWithWindows
       });
     }
-    
+
     // Aplicar configuración de actualizaciones automáticas
-    if (autoUpdater) {
-      autoUpdater.initialize({
-        autoDownload: settings.autoDownloadUpdates,
-        autoInstall: false,
-        channel: 'stable',
-        mainWindow
-      }).catch(error => {
+    if (autoUpdater && typeof autoUpdater.initialize === 'function') {
+      try {
+        autoUpdater.initialize({
+          autoDownload: settings.autoDownloadUpdates,
+          autoInstall: false,
+          channel: 'stable',
+          mainWindow
+        });
+      } catch (error) {
         log.error(`Error al aplicar configuración de actualizaciones: ${error.message}`);
-      });
+      }
     }
-    
+
     log.info('Configuración aplicada correctamente');
     return true;
   } catch (error) {

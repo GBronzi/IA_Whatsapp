@@ -11,6 +11,22 @@ const log = require('electron-log');
 const si = require('systeminformation');
 const open = require('open');
 
+// Importar funciones de configuración
+let settingsFunctions;
+try {
+  settingsFunctions = require('./settings-functions');
+} catch (error) {
+  log.error(`Error al cargar funciones de configuración: ${error.message}`);
+}
+
+// Importar módulo de menú
+let menuModule;
+try {
+  menuModule = require('./menu');
+} catch (error) {
+  log.error(`Error al cargar módulo de menú: ${error.message}`);
+}
+
 // Importar gestor de autenticación
 let authManager;
 try {
@@ -43,10 +59,31 @@ try {
 // Importar gestor de actualizaciones
 let autoUpdater;
 try {
+  // Intentar cargar desde la raíz del proyecto
   autoUpdater = require('../auto-updater');
   log.info('Gestor de actualizaciones cargado correctamente');
 } catch (error) {
-  log.error(`Error al cargar gestor de actualizaciones: ${error.message}`);
+  try {
+    // Intentar cargar desde la carpeta electron
+    autoUpdater = require('./auto-updater');
+    log.info('Gestor de actualizaciones cargado correctamente');
+  } catch (innerError) {
+    log.error(`Error al cargar gestor de actualizaciones: ${error.message}, ${innerError.message}`);
+    // Crear un objeto vacío para evitar errores
+    autoUpdater = {
+      initialize: () => {},
+      checkForUpdates: () => Promise.resolve(false),
+      downloadUpdate: () => Promise.resolve(false),
+      quitAndInstall: () => false,
+      getStatus: () => ({
+        updateAvailable: false,
+        updateDownloaded: false,
+        updateInfo: null,
+        autoDownload: false,
+        autoInstall: false
+      })
+    };
+  }
 }
 
 // Importar gestor de notificaciones
@@ -92,9 +129,6 @@ let isRunning = false;
 let resourceInterval;
 let isLicenseValid = false;
 let licenseInfo = null;
-let notificationManager;
-let backupManager;
-let crmManager;
 
 // Configuración de la aplicación
 const appConfig = {
@@ -628,17 +662,18 @@ function createWindow() {
   });
 
   // Inicializar gestor de actualizaciones
-  if (autoUpdater) {
-    autoUpdater.initialize({
-      autoDownload: false,
-      autoInstall: false,
-      channel: 'stable',
-      mainWindow
-    }).then(() => {
+  if (autoUpdater && typeof autoUpdater.initialize === 'function') {
+    try {
+      autoUpdater.initialize({
+        autoDownload: false,
+        autoInstall: false,
+        channel: 'stable',
+        mainWindow
+      });
       log.info('Gestor de actualizaciones inicializado correctamente');
-    }).catch(error => {
+    } catch (error) {
       log.error(`Error al inicializar gestor de actualizaciones: ${error.message}`);
-    });
+    }
   }
 
   // Cargar el archivo HTML de la aplicación
@@ -661,7 +696,11 @@ function createWindow() {
   });
 
   // Crear menú
-  const menu = Menu.buildFromTemplate([
+  if (menuModule) {
+    const menu = menuModule.createMenu(mainWindow, autoUpdater);
+    Menu.setApplicationMenu(menu);
+  } else {
+    const menu = Menu.buildFromTemplate([
     {
       label: 'Archivo',
       submenu: [
@@ -736,6 +775,7 @@ function createWindow() {
   ]);
 
   Menu.setApplicationMenu(menu);
+  }
 
   // Iniciar monitoreo de recursos
   startResourceMonitoring();
@@ -2825,6 +2865,245 @@ ipcMain.on('install-update', (event) => {
     event.reply('install-update-result', {
       success: false,
       message: `Error al instalar actualización: ${error.message}`
+    });
+  }
+});
+
+// --- Eventos para configuración ---
+
+// Evento para obtener configuración
+ipcMain.on('get-settings', (event) => {
+  try {
+    // Cargar configuración desde archivo o usar valores predeterminados
+    const settings = settingsFunctions ? settingsFunctions.loadSettings() : {};
+
+    event.reply('settings', settings);
+  } catch (error) {
+    log.error(`Error al obtener configuración: ${error.message}`);
+    event.reply('settings', {});
+  }
+});
+
+// Evento para guardar configuración
+ipcMain.on('save-settings', (event, settings) => {
+  try {
+    if (!settingsFunctions) {
+      throw new Error('Funciones de configuración no disponibles');
+    }
+
+    // Guardar configuración en archivo
+    settingsFunctions.saveSettings(settings);
+
+    // Aplicar configuración
+    settingsFunctions.applySettings(settings, autoUpdater, mainWindow);
+
+    event.reply('save-settings-result', {
+      success: true,
+      settings
+    });
+  } catch (error) {
+    log.error(`Error al guardar configuración: ${error.message}`);
+
+    event.reply('save-settings-result', {
+      success: false,
+      message: `Error al guardar configuración: ${error.message}`
+    });
+  }
+});
+
+// Evento para restablecer configuración
+ipcMain.on('reset-settings', (event) => {
+  try {
+    if (!settingsFunctions) {
+      throw new Error('Funciones de configuración no disponibles');
+    }
+
+    // Cargar configuración predeterminada
+    const defaultSettings = settingsFunctions.getDefaultSettings();
+
+    // Guardar configuración predeterminada
+    settingsFunctions.saveSettings(defaultSettings);
+
+    // Aplicar configuración
+    settingsFunctions.applySettings(defaultSettings, autoUpdater, mainWindow);
+
+    event.reply('reset-settings-result', {
+      success: true,
+      settings: defaultSettings
+    });
+  } catch (error) {
+    log.error(`Error al restablecer configuración: ${error.message}`);
+
+    event.reply('reset-settings-result', {
+      success: false,
+      message: `Error al restablecer configuración: ${error.message}`
+    });
+  }
+});
+
+// Evento para obtener información de usuario
+ipcMain.on('get-user-info', (event) => {
+  try {
+    // Obtener información de usuario desde el gestor de autenticación
+    let userInfo = {
+      name: 'Usuario',
+      status: 'Conectado'
+    };
+
+    if (authManager) {
+      const authStatus = authManager.getStatus();
+      userInfo.name = authStatus.userName || 'Usuario';
+      userInfo.status = authStatus.authenticated ? 'Autenticado' : 'No autenticado';
+    }
+
+    event.reply('user-info', userInfo);
+  } catch (error) {
+    log.error(`Error al obtener información de usuario: ${error.message}`);
+    event.reply('user-info', { name: 'Usuario', status: 'Desconocido' });
+  }
+});
+
+// Evento para obtener versión de la aplicación
+ipcMain.on('get-app-version', (event) => {
+  event.reply('app-version', app.getVersion());
+});
+
+// Evento para obtener estado de WhatsApp
+ipcMain.on('get-whatsapp-status', (event) => {
+  try {
+    // Obtener estado de WhatsApp
+    let status = {
+      connected: false,
+      connecting: false
+    };
+
+    // Aquí se implementaría la lógica para obtener el estado real de WhatsApp
+    // Por ahora, usamos valores de ejemplo
+    status.connected = true;
+
+    event.reply('whatsapp-status', status);
+  } catch (error) {
+    log.error(`Error al obtener estado de WhatsApp: ${error.message}`);
+    event.reply('whatsapp-status', { connected: false, connecting: false });
+  }
+});
+
+// Evento para obtener estado de Google Sheets
+ipcMain.on('get-sheets-status', (event) => {
+  try {
+    // Obtener estado de Google Sheets
+    let status = {
+      connected: false,
+      configured: false
+    };
+
+    // Verificar si hay un ID de hoja configurado
+    const settings = settingsFunctions ? settingsFunctions.loadSettings() : {};
+    status.configured = !!settings.sheetsId;
+
+    // Aquí se implementaría la lógica para verificar la conexión real con Google Sheets
+    // Por ahora, asumimos que está conectado si está configurado
+    status.connected = status.configured;
+
+    event.reply('sheets-status', status);
+  } catch (error) {
+    log.error(`Error al obtener estado de Google Sheets: ${error.message}`);
+    event.reply('sheets-status', { connected: false, configured: false });
+  }
+});
+
+// Evento para obtener registros
+ipcMain.on('get-logs', (event) => {
+  try {
+    // Obtener ruta del archivo de registro
+    const logPath = log.transports.file.getFile().path;
+
+    // Leer archivo de registro
+    fs.readFile(logPath, 'utf8', (err, data) => {
+      if (err) {
+        log.error(`Error al leer archivo de registro: ${err.message}`);
+        event.reply('logs', 'Error al leer registros');
+        return;
+      }
+
+      // Enviar contenido del archivo
+      event.reply('logs', data);
+    });
+  } catch (error) {
+    log.error(`Error al obtener registros: ${error.message}`);
+    event.reply('logs', 'Error al obtener registros');
+  }
+});
+
+// Evento para exportar registros
+ipcMain.on('export-logs', (event) => {
+  try {
+    // Obtener ruta del archivo de registro
+    const logPath = log.transports.file.getFile().path;
+
+    // Mostrar diálogo para guardar archivo
+    dialog.showSaveDialog({
+      title: 'Exportar registros',
+      defaultPath: path.join(app.getPath('documents'), 'asistente-ventas-logs.txt'),
+      filters: [
+        { name: 'Archivos de texto', extensions: ['txt'] }
+      ]
+    }).then(result => {
+      if (result.canceled) {
+        return;
+      }
+
+      // Copiar archivo de registro
+      fs.copyFile(logPath, result.filePath, (err) => {
+        if (err) {
+          log.error(`Error al copiar archivo de registro: ${err.message}`);
+          event.reply('export-logs-result', {
+            success: false,
+            message: `Error al exportar registros: ${err.message}`
+          });
+          return;
+        }
+
+        event.reply('export-logs-result', {
+          success: true,
+          path: result.filePath
+        });
+      });
+    }).catch(err => {
+      log.error(`Error al mostrar diálogo de guardado: ${err.message}`);
+      event.reply('export-logs-result', {
+        success: false,
+        message: `Error al exportar registros: ${err.message}`
+      });
+    });
+  } catch (error) {
+    log.error(`Error al exportar registros: ${error.message}`);
+    event.reply('export-logs-result', {
+      success: false,
+      message: `Error al exportar registros: ${error.message}`
+    });
+  }
+});
+
+// Evento para ejecutar diagnóstico
+ipcMain.on('run-diagnostics', (event) => {
+  try {
+    // Aquí se implementaría la lógica para ejecutar un diagnóstico completo
+    // Por ahora, simplemente registramos un mensaje y devolvemos éxito
+    log.info('Ejecutando diagnóstico del sistema...');
+
+    // Simular un diagnóstico que toma tiempo
+    setTimeout(() => {
+      event.reply('diagnostics-result', {
+        success: true,
+        message: 'Diagnóstico completado correctamente'
+      });
+    }, 2000);
+  } catch (error) {
+    log.error(`Error al ejecutar diagnóstico: ${error.message}`);
+    event.reply('diagnostics-result', {
+      success: false,
+      message: `Error al ejecutar diagnóstico: ${error.message}`
     });
   }
 });

@@ -1,6 +1,6 @@
 /**
  * Cliente para el servidor de licencias
- * 
+ *
  * Este módulo proporciona funciones para comunicarse con el servidor de licencias
  * y verificar la validez de las licencias.
  */
@@ -34,7 +34,7 @@ function initialize(customConfig = {}) {
   try {
     // Combinar configuración por defecto con la personalizada
     config = { ...DEFAULT_CONFIG, ...customConfig };
-    
+
     logger.info('Cliente de licencias inicializado correctamente');
     return module.exports;
   } catch (error) {
@@ -60,35 +60,35 @@ async function verifyLicense(licenseKey, options = {}) {
         offlineMode: false
       };
     }
-    
+
     // Verificar si hay una verificación reciente en caché
     if (licenseCache && licenseCache.key === licenseKey && lastVerification) {
       const now = Date.now();
       const elapsed = now - lastVerification;
-      
+
       // Si la caché no ha expirado, retornar resultado en caché
       if (elapsed < config.cacheExpiry) {
         logger.debug('Usando resultado de verificación en caché');
         return licenseCache;
       }
     }
-    
+
     // Generar ID de dispositivo
     const deviceId = generateDeviceId();
-    
+
     // Intentar verificar con el servidor
     if (!config.offlineMode) {
       try {
         const result = await verifyWithServer(licenseKey, deviceId, options);
-        
+
         // Guardar resultado en caché
         licenseCache = result;
         lastVerification = Date.now();
-        
+
         return result;
       } catch (error) {
         logger.warn(`Error al verificar licencia con el servidor: ${error.message}`);
-        
+
         // Si hay un resultado en caché, usarlo como fallback
         if (licenseCache && licenseCache.key === licenseKey) {
           logger.info('Usando resultado en caché como fallback');
@@ -98,14 +98,9 @@ async function verifyLicense(licenseKey, options = {}) {
             message: 'Verificación offline (usando caché)'
           };
         }
-        
+
         // Si no hay caché, verificar offline
-        if (config.offlineMode) {
-          return verifyOffline(licenseKey, deviceId);
-        }
-        
-        // Si no se puede verificar, retornar error
-        throw error;
+        return verifyOffline(licenseKey, deviceId);
       }
     } else {
       // Verificar offline
@@ -135,7 +130,7 @@ async function verifyWithServer(licenseKey, deviceId, options = {}) {
     baseURL: config.serverUrl,
     timeout: config.timeout
   });
-  
+
   // Datos de la solicitud
   const data = {
     licenseKey,
@@ -143,13 +138,13 @@ async function verifyWithServer(licenseKey, deviceId, options = {}) {
     userName: options.userName || os.userInfo().username,
     deviceId
   };
-  
+
   // Intentar verificar con reintentos
   let lastError = null;
   for (let i = 0; i < config.retryCount; i++) {
     try {
       const response = await client.post('/api/verify-license', data);
-      
+
       if (response.data && response.data.valid) {
         return {
           valid: true,
@@ -170,7 +165,7 @@ async function verifyWithServer(licenseKey, deviceId, options = {}) {
       }
     } catch (error) {
       lastError = error;
-      
+
       // Si es un error de respuesta, no reintentar
       if (error.response) {
         return {
@@ -181,14 +176,14 @@ async function verifyWithServer(licenseKey, deviceId, options = {}) {
           offlineMode: false
         };
       }
-      
+
       // Esperar antes de reintentar
       if (i < config.retryCount - 1) {
         await new Promise(resolve => setTimeout(resolve, config.retryDelay));
       }
     }
   }
-  
+
   // Si todos los intentos fallan, lanzar error
   throw lastError || new Error('Error al verificar licencia con el servidor');
 }
@@ -203,14 +198,14 @@ function verifyOffline(licenseKey, deviceId) {
   try {
     // Verificar formato de la licencia
     const parts = licenseKey.split('.');
-    
+
     // Formato antiguo (base64.hash)
     if (parts.length === 2) {
       try {
         // Decodificar datos de la licencia
         const dataString = Buffer.from(parts[0], 'base64').toString('utf8');
         const data = JSON.parse(dataString);
-        
+
         // Verificar hash
         const hash = crypto.createHash('sha256').update(dataString).digest('hex');
         if (hash.substring(0, 8) !== parts[1]) {
@@ -222,7 +217,7 @@ function verifyOffline(licenseKey, deviceId) {
             offlineMode: true
           };
         }
-        
+
         // Verificar expiración
         if (data.expiryDate !== 'permanent') {
           const expiryDate = new Date(data.expiryDate);
@@ -237,7 +232,7 @@ function verifyOffline(licenseKey, deviceId) {
             };
           }
         }
-        
+
         // Licencia válida
         return {
           valid: true,
@@ -248,7 +243,11 @@ function verifyOffline(licenseKey, deviceId) {
           offlineMode: true
         };
       } catch (error) {
-        logger.error(`Error al verificar licencia offline (formato antiguo): ${error.message}`);
+        if (logger) {
+          logger.error(`Error al verificar licencia offline (formato antiguo): ${error.message}`);
+        } else {
+          console.error(`Error al verificar licencia offline (formato antiguo): ${error.message}`);
+        }
         return {
           valid: false,
           status: 'invalid',
@@ -258,12 +257,16 @@ function verifyOffline(licenseKey, deviceId) {
         };
       }
     }
-    
+
     // Formato nuevo (iv.encrypted.hash)
     if (parts.length === 3) {
       // En una implementación real, aquí verificaríamos la licencia
       // con el formato nuevo, pero para simplificar, asumimos que es válida
-      logger.warn('Verificación offline de licencia con formato nuevo no implementada');
+      if (logger) {
+        logger.warn('Verificación offline de licencia con formato nuevo no implementada');
+      } else {
+        console.warn('Verificación offline de licencia con formato nuevo no implementada');
+      }
       return {
         valid: true,
         status: 'active',
@@ -272,7 +275,7 @@ function verifyOffline(licenseKey, deviceId) {
         offlineMode: true
       };
     }
-    
+
     // Formato inválido
     return {
       valid: false,
@@ -282,7 +285,11 @@ function verifyOffline(licenseKey, deviceId) {
       offlineMode: true
     };
   } catch (error) {
-    logger.error(`Error al verificar licencia offline: ${error.message}`);
+    if (logger) {
+      logger.error(`Error al verificar licencia offline: ${error.message}`);
+    } else {
+      console.error(`Error al verificar licencia offline: ${error.message}`);
+    }
     return {
       valid: false,
       status: 'error',
@@ -308,16 +315,16 @@ async function activateLicense(licenseKey, options = {}) {
         message: 'Licencia no proporcionada'
       };
     }
-    
+
     // Generar ID de dispositivo
     const deviceId = generateDeviceId();
-    
+
     // Configurar cliente HTTP
     const client = axios.create({
       baseURL: config.serverUrl,
       timeout: config.timeout
     });
-    
+
     // Datos de la solicitud
     const data = {
       licenseKey,
@@ -326,13 +333,13 @@ async function activateLicense(licenseKey, options = {}) {
       deviceId,
       email: options.email
     };
-    
+
     // Intentar activar con reintentos
     let lastError = null;
     for (let i = 0; i < config.retryCount; i++) {
       try {
         const response = await client.post('/api/activate-license', data);
-        
+
         if (response.data && response.data.success) {
           // Guardar resultado en caché
           licenseCache = {
@@ -344,7 +351,7 @@ async function activateLicense(licenseKey, options = {}) {
             offlineMode: false
           };
           lastVerification = Date.now();
-          
+
           return {
             success: true,
             message: response.data.message || 'Licencia activada correctamente',
@@ -359,7 +366,7 @@ async function activateLicense(licenseKey, options = {}) {
         }
       } catch (error) {
         lastError = error;
-        
+
         // Si es un error de respuesta, no reintentar
         if (error.response) {
           return {
@@ -367,14 +374,14 @@ async function activateLicense(licenseKey, options = {}) {
             message: error.response.data?.message || 'Error al activar licencia'
           };
         }
-        
+
         // Esperar antes de reintentar
         if (i < config.retryCount - 1) {
           await new Promise(resolve => setTimeout(resolve, config.retryDelay));
         }
       }
     }
-    
+
     // Si todos los intentos fallan, retornar error
     return {
       success: false,
@@ -404,25 +411,25 @@ async function recoverLicense(recoveryKey, userName) {
         message: 'Clave de recuperación y nombre de usuario son requeridos'
       };
     }
-    
+
     // Configurar cliente HTTP
     const client = axios.create({
       baseURL: config.serverUrl,
       timeout: config.timeout
     });
-    
+
     // Datos de la solicitud
     const data = {
       recoveryKey,
       userName
     };
-    
+
     // Intentar recuperar con reintentos
     let lastError = null;
     for (let i = 0; i < config.retryCount; i++) {
       try {
         const response = await client.post('/api/recover-license', data);
-        
+
         if (response.data && response.data.success) {
           // Guardar resultado en caché
           if (response.data.license) {
@@ -436,7 +443,7 @@ async function recoverLicense(recoveryKey, userName) {
             };
             lastVerification = Date.now();
           }
-          
+
           return {
             success: true,
             message: response.data.message || 'Licencia recuperada correctamente',
@@ -450,7 +457,7 @@ async function recoverLicense(recoveryKey, userName) {
         }
       } catch (error) {
         lastError = error;
-        
+
         // Si es un error de respuesta, no reintentar
         if (error.response) {
           return {
@@ -458,14 +465,14 @@ async function recoverLicense(recoveryKey, userName) {
             message: error.response.data?.message || 'Error al recuperar licencia'
           };
         }
-        
+
         // Esperar antes de reintentar
         if (i < config.retryCount - 1) {
           await new Promise(resolve => setTimeout(resolve, config.retryDelay));
         }
       }
     }
-    
+
     // Si todos los intentos fallan, retornar error
     return {
       success: false,
@@ -493,13 +500,14 @@ function generateDeviceId() {
     os.totalmem(),
     os.userInfo().username
   ].join('|');
-  
+
   return crypto.createHash('sha256').update(data).digest('hex');
 }
 
 module.exports = {
   initialize,
   verifyLicense,
+  verifyOffline,
   activateLicense,
   recoverLicense,
   generateDeviceId
