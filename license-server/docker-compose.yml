@@ -1,0 +1,16 @@
+version: '3'
+
+services:
+  license-server:
+    build: .
+    restart: always
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./db.json:/usr/src/app/db.json
+      - ./.env:/usr/src/app/.env
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - JWT_SECRET=${JWT_SECRET}
+      - ADMIN_KEY=${ADMIN_KEY}
