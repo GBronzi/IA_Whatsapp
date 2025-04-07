@@ -1,0 +1,460 @@
+<%- include('../partials/header', { title: 'Análisis Predictivo' }) %>
+
+<div class="container-fluid">
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-3 mb-3">
+              <div class="card bg-primary text-white h-100">
+                <div class="card-body">
+                  <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                      <h6 class="mb-0">Comportamiento</h6>
+                      <p class="mb-0">Predicción de comportamiento de clientes</p>
+                    </div>
+                    <i class="fas fa-user-check fa-2x"></i>
+                  </div>
+                </div>
+                <div class="card-footer bg-transparent border-0">
+                  <a href="/predictive/client-behavior" class="btn btn-light btn-sm w-100">Ver análisis</a>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-3 mb-3">
+              <div class="card bg-success text-white h-100">
+                <div class="card-body">
+                  <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                      <h6 class="mb-0">Ventas</h6>
+                      <p class="mb-0">Pronóstico de ventas futuras</p>
+                    </div>
+                    <i class="fas fa-chart-line fa-2x"></i>
+                  </div>
+                </div>
+                <div class="card-footer bg-transparent border-0">
+                  <a href="/predictive/sales-forecast" class="btn btn-light btn-sm w-100">Ver pronóstico</a>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-3 mb-3">
+              <div class="card bg-info text-white h-100">
+                <div class="card-body">
+                  <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                      <h6 class="mb-0">Segmentación</h6>
+                      <p class="mb-0">Segmentación de clientes</p>
+                    </div>
+                    <i class="fas fa-users-cog fa-2x"></i>
+                  </div>
+                </div>
+                <div class="card-footer bg-transparent border-0">
+                  <a href="/predictive/client-segmentation" class="btn btn-light btn-sm w-100">Ver segmentos</a>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-3 mb-3">
+              <div class="card bg-warning text-white h-100">
+                <div class="card-body">
+                  <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                      <h6 class="mb-0">Recomendaciones</h6>
+                      <p class="mb-0">Recomendaciones personalizadas</p>
+                    </div>
+                    <i class="fas fa-lightbulb fa-2x"></i>
+                  </div>
+                </div>
+                <div class="card-footer bg-transparent border-0">
+                  <a href="/clients" class="btn btn-light btn-sm w-100">Seleccionar cliente</a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Clientes con mayor probabilidad de conversión -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="card shadow-sm">
+        <div class="card-header bg-light">
+          <h5 class="mb-0">Clientes con mayor probabilidad de conversión</h5>
+        </div>
+        <div class="card-body p-0">
+          <div class="table-responsive">
+            <table class="table table-hover mb-0">
+              <thead class="table-light">
+                <tr>
+                  <th>Cliente</th>
+                  <th>Probabilidad</th>
+                  <th>Valor potencial</th>
+                  <th>Próxima interacción</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="high-probability-clients">
+                <tr>
+                  <td colspan="5" class="text-center py-3">Cargando datos...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Pronóstico de ventas -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="card shadow-sm">
+        <div class="card-header bg-light d-flex justify-content-between align-items-center">
+          <h5 class="mb-0">Pronóstico de ventas</h5>
+          <div class="btn-group">
+            <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+              Mensual
+            </button>
+            <ul class="dropdown-menu">
+              <li><a class="dropdown-item" href="#" data-period="daily">Diario</a></li>
+              <li><a class="dropdown-item" href="#" data-period="weekly">Semanal</a></li>
+              <li><a class="dropdown-item active" href="#" data-period="monthly">Mensual</a></li>
+            </ul>
+          </div>
+        </div>
+        <div class="card-body">
+          <canvas id="sales-forecast-chart" height="300"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Segmentación de clientes -->
+  <div class="row">
+    <div class="col-12">
+      <div class="card shadow-sm">
+        <div class="card-header bg-light">
+          <h5 class="mb-0">Segmentación de clientes</h5>
+        </div>
+        <div class="card-body">
+          <div class="row" id="segments-container">
+            <div class="col-12 text-center py-3">
+              <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Cargando...</span>
+              </div>
+              <p class="mt-2">Cargando segmentos...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Cargar datos iniciales
+    loadPredictiveData();
+    
+    // Configurar selector de período para pronóstico de ventas
+    document.querySelectorAll('[data-period]').forEach(item => {
+      item.addEventListener('click', function(e) {
+        e.preventDefault();
+        
+        // Actualizar UI
+        document.querySelector('.dropdown-toggle').textContent = this.textContent;
+        document.querySelectorAll('[data-period]').forEach(el => el.classList.remove('active'));
+        this.classList.add('active');
+        
+        // Cargar datos con nuevo período
+        loadSalesForecast(this.dataset.period);
+      });
+    });
+  });
+  
+  // Cargar todos los datos predictivos
+  function loadPredictiveData() {
+    // Cargar predicciones de comportamiento
+    fetch('/predictive/api/client-behavior')
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          updateHighProbabilityClients(data.data);
+        }
+      })
+      .catch(error => console.error('Error al cargar predicciones de comportamiento:', error));
+    
+    // Cargar pronóstico de ventas
+    loadSalesForecast('monthly');
+    
+    // Cargar segmentación de clientes
+    fetch('/predictive/api/client-segmentation')
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          updateSegments(data.data);
+        }
+      })
+      .catch(error => console.error('Error al cargar segmentación de clientes:', error));
+  }
+  
+  // Cargar pronóstico de ventas
+  function loadSalesForecast(period) {
+    fetch(`/predictive/api/sales-forecast?period=${period}`)
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          updateSalesForecast(data.data);
+        }
+      })
+      .catch(error => console.error('Error al cargar pronóstico de ventas:', error));
+  }
+  
+  // Actualizar clientes con alta probabilidad de conversión
+  function updateHighProbabilityClients(predictions) {
+    const container = document.getElementById('high-probability-clients');
+    
+    if (!predictions || predictions.length === 0) {
+      container.innerHTML = '<tr><td colspan="5" class="text-center py-3">No hay predicciones disponibles</td></tr>';
+    } else {
+      container.innerHTML = '';
+      
+      // Ordenar por probabilidad de conversión (descendente)
+      predictions.sort((a, b) => b.predictions.conversionProbability - a.predictions.conversionProbability);
+      
+      // Mostrar top 5
+      predictions.slice(0, 5).forEach(prediction => {
+        const row = document.createElement('tr');
+        const probability = prediction.predictions.conversionProbability;
+        const customerValue = prediction.predictions.customerValue;
+        const nextInteraction = prediction.predictions.nextInteraction;
+        
+        row.innerHTML = `
+          <td>
+            <div class="d-flex align-items-center">
+              <div class="avatar avatar-sm me-2">
+                <div class="avatar-initial rounded-circle bg-primary">${prediction.client.name.charAt(0)}</div>
+              </div>
+              <div>
+                <div class="fw-bold">${prediction.client.name}</div>
+                <div class="small text-muted">${prediction.client.phone}</div>
+              </div>
+            </div>
+          </td>
+          <td>
+            <div class="d-flex align-items-center">
+              <div class="progress flex-grow-1 me-2" style="height: 5px;">
+                <div class="progress-bar bg-${getProbabilityClass(probability)}" style="width: ${probability * 100}%"></div>
+              </div>
+              <span>${(probability * 100).toFixed(0)}%</span>
+            </div>
+          </td>
+          <td>
+            <span class="badge bg-${getValueClass(customerValue.category)}">
+              ${customerValue.category.toUpperCase()}
+            </span>
+            <span class="ms-2">$${customerValue.value}</span>
+          </td>
+          <td>
+            <span class="badge bg-${getProbabilityClass(nextInteraction.probability)}">
+              ${nextInteraction.daysUntilNext} días
+            </span>
+            <small class="text-muted d-block">${nextInteraction.date}</small>
+          </td>
+          <td>
+            <a href="/predictive/recommendations/${prediction.client.phone}" class="btn btn-sm btn-outline-primary">
+              <i class="fas fa-lightbulb"></i>
+            </a>
+            <a href="/clients/${prediction.client.phone}" class="btn btn-sm btn-outline-secondary">
+              <i class="fas fa-eye"></i>
+            </a>
+          </td>
+        `;
+        
+        container.appendChild(row);
+      });
+    }
+  }
+  
+  // Actualizar pronóstico de ventas
+  function updateSalesForecast(forecast) {
+    const ctx = document.getElementById('sales-forecast-chart').getContext('2d');
+    
+    // Preparar datos
+    const labels = [...forecast.historical.map(d => d.period), ...forecast.predictions.map(d => d.period)];
+    const historicalData = [...forecast.historical.map(d => d.value), ...Array(forecast.predictions.length).fill(null)];
+    const predictionsData = [...Array(forecast.historical.length).fill(null), ...forecast.predictions.map(d => d.value)];
+    
+    // Crear o actualizar gráfico
+    if (window.salesForecastChart) {
+      window.salesForecastChart.data.labels = labels;
+      window.salesForecastChart.data.datasets[0].data = historicalData;
+      window.salesForecastChart.data.datasets[1].data = predictionsData;
+      window.salesForecastChart.update();
+    } else {
+      window.salesForecastChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Histórico',
+            data: historicalData,
+            borderColor: 'rgba(75, 192, 192, 1)',
+            backgroundColor: 'rgba(75, 192, 192, 0.2)',
+            tension: 0.1
+          }, {
+            label: 'Predicción',
+            data: predictionsData,
+            borderColor: 'rgba(255, 159, 64, 1)',
+            backgroundColor: 'rgba(255, 159, 64, 0.2)',
+            borderDash: [5, 5],
+            tension: 0.1
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            title: {
+              display: true,
+              text: `Pronóstico de ventas (${getPeriodLabel(forecast.period)})`
+            },
+            tooltip: {
+              mode: 'index',
+              intersect: false
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              title: {
+                display: true,
+                text: 'Ventas ($)'
+              }
+            },
+            x: {
+              title: {
+                display: true,
+                text: getPeriodLabel(forecast.period)
+              }
+            }
+          }
+        }
+      });
+    }
+  }
+  
+  // Actualizar segmentos de clientes
+  function updateSegments(segmentData) {
+    const container = document.getElementById('segments-container');
+    
+    if (!segmentData || !segmentData.segments || segmentData.segments.length === 0) {
+      container.innerHTML = '<div class="col-12 text-center py-3">No hay segmentos disponibles</div>';
+    } else {
+      container.innerHTML = '';
+      
+      // Crear gráfico de distribución
+      const chartCol = document.createElement('div');
+      chartCol.className = 'col-md-4 mb-4';
+      chartCol.innerHTML = `
+        <div class="card h-100">
+          <div class="card-header bg-light">
+            <h6 class="mb-0">Distribución de clientes</h6>
+          </div>
+          <div class="card-body d-flex align-items-center justify-content-center">
+            <canvas id="segments-chart" height="250"></canvas>
+          </div>
+        </div>
+      `;
+      container.appendChild(chartCol);
+      
+      // Crear tarjetas de segmentos
+      segmentData.segments.forEach(segment => {
+        const segmentCol = document.createElement('div');
+        segmentCol.className = 'col-md-4 mb-4';
+        
+        segmentCol.innerHTML = `
+          <div class="card h-100">
+            <div class="card-header bg-light">
+              <h6 class="mb-0">${segment.name}</h6>
+            </div>
+            <div class="card-body">
+              <p class="card-text">${segment.description}</p>
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <span>Clientes:</span>
+                <span class="badge bg-primary">${segment.count}</span>
+              </div>
+              <div class="progress mb-3" style="height: 5px;">
+                <div class="progress-bar bg-primary" style="width: ${(segment.count / segmentData.totalClients) * 100}%"></div>
+              </div>
+              <div class="small text-muted mb-3">
+                ${(segment.count / segmentData.totalClients * 100).toFixed(1)}% del total de clientes
+              </div>
+              <a href="/predictive/client-segmentation?segment=${segment.id}" class="btn btn-sm btn-outline-primary w-100">
+                Ver detalles
+              </a>
+            </div>
+          </div>
+        `;
+        
+        container.appendChild(segmentCol);
+      });
+      
+      // Inicializar gráfico de distribución
+      const ctx = document.getElementById('segments-chart').getContext('2d');
+      new Chart(ctx, {
+        type: 'pie',
+        data: {
+          labels: segmentData.segments.map(s => s.name),
+          datasets: [{
+            data: segmentData.segments.map(s => s.count),
+            backgroundColor: [
+              'rgba(75, 192, 192, 0.7)',
+              'rgba(54, 162, 235, 0.7)',
+              'rgba(255, 159, 64, 0.7)',
+              'rgba(153, 102, 255, 0.7)',
+              'rgba(255, 99, 132, 0.7)'
+            ],
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: {
+              position: 'bottom'
+            }
+          }
+        }
+      });
+    }
+  }
+  
+  // Funciones auxiliares
+  function getProbabilityClass(probability) {
+    if (probability >= 0.7) return 'success';
+    if (probability >= 0.4) return 'warning';
+    return 'danger';
+  }
+  
+  function getValueClass(category) {
+    switch (category) {
+      case 'alto': return 'success';
+      case 'medio': return 'warning';
+      case 'bajo': return 'danger';
+      default: return 'secondary';
+    }
+  }
+  
+  function getPeriodLabel(period) {
+    switch (period) {
+      case 'daily': return 'Diario';
+      case 'weekly': return 'Semanal';
+      case 'monthly': return 'Mensual';
+      default: return 'Período';
+    }
+  }
+</script>
+
+<%- include('../partials/footer') %>

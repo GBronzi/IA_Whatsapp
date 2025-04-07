@@ -1,0 +1,602 @@
+<%- include('partials/header', { title: 'Panel de control' }) %>
+
+<div class="container-fluid">
+  <!-- Estado del sistema -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="card shadow-sm">
+        <div class="card-header bg-light">
+          <h5 class="mb-0">Estado del sistema</h5>
+        </div>
+        <div class="card-body">
+          <div class="row" id="system-status">
+            <div class="col-md-3 mb-3">
+              <div class="card bg-primary text-white h-100">
+                <div class="card-body">
+                  <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                      <h6 class="mb-0">CPU</h6>
+                      <h2 class="mb-0" id="cpu-usage">--</h2>
+                    </div>
+                    <i class="fas fa-microchip fa-2x"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-3 mb-3">
+              <div class="card bg-success text-white h-100">
+                <div class="card-body">
+                  <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                      <h6 class="mb-0">Memoria</h6>
+                      <h2 class="mb-0" id="memory-usage">--</h2>
+                    </div>
+                    <i class="fas fa-memory fa-2x"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-3 mb-3">
+              <div class="card bg-info text-white h-100">
+                <div class="card-body">
+                  <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                      <h6 class="mb-0">Tiempo activo</h6>
+                      <h2 class="mb-0" id="uptime">--</h2>
+                    </div>
+                    <i class="fas fa-clock fa-2x"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-3 mb-3">
+              <div class="card bg-warning text-white h-100">
+                <div class="card-body">
+                  <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                      <h6 class="mb-0">Alertas</h6>
+                      <h2 class="mb-0" id="alerts-count">--</h2>
+                    </div>
+                    <i class="fas fa-exclamation-triangle fa-2x"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Estadísticas de actividad -->
+  <div class="row mb-4">
+    <div class="col-md-8">
+      <div class="card shadow-sm h-100">
+        <div class="card-header bg-light d-flex justify-content-between align-items-center">
+          <h5 class="mb-0">Actividad reciente</h5>
+          <div class="btn-group">
+            <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+              Últimas 24 horas
+            </button>
+            <ul class="dropdown-menu">
+              <li><a class="dropdown-item" href="#" data-range="1h">Última hora</a></li>
+              <li><a class="dropdown-item" href="#" data-range="6h">Últimas 6 horas</a></li>
+              <li><a class="dropdown-item active" href="#" data-range="24h">Últimas 24 horas</a></li>
+              <li><a class="dropdown-item" href="#" data-range="7d">Últimos 7 días</a></li>
+            </ul>
+          </div>
+        </div>
+        <div class="card-body">
+          <canvas id="activity-chart" height="250"></canvas>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card shadow-sm h-100">
+        <div class="card-header bg-light">
+          <h5 class="mb-0">Resumen de actividad</h5>
+        </div>
+        <div class="card-body">
+          <div class="mb-3">
+            <div class="d-flex justify-content-between mb-1">
+              <span>Mensajes procesados</span>
+              <span class="text-primary" id="messages-count">--</span>
+            </div>
+            <div class="progress" style="height: 5px;">
+              <div class="progress-bar bg-primary" role="progressbar" style="width: 0%"></div>
+            </div>
+          </div>
+          <div class="mb-3">
+            <div class="d-flex justify-content-between mb-1">
+              <span>Clientes activos</span>
+              <span class="text-success" id="active-clients">--</span>
+            </div>
+            <div class="progress" style="height: 5px;">
+              <div class="progress-bar bg-success" role="progressbar" style="width: 0%"></div>
+            </div>
+          </div>
+          <div class="mb-3">
+            <div class="d-flex justify-content-between mb-1">
+              <span>Tiempo de respuesta</span>
+              <span class="text-info" id="response-time">--</span>
+            </div>
+            <div class="progress" style="height: 5px;">
+              <div class="progress-bar bg-info" role="progressbar" style="width: 0%"></div>
+            </div>
+          </div>
+          <div class="mb-3">
+            <div class="d-flex justify-content-between mb-1">
+              <span>Tasa de errores</span>
+              <span class="text-danger" id="error-rate">--</span>
+            </div>
+            <div class="progress" style="height: 5px;">
+              <div class="progress-bar bg-danger" role="progressbar" style="width: 0%"></div>
+            </div>
+          </div>
+          <div class="text-center mt-4">
+            <button class="btn btn-primary" id="refresh-stats">
+              <i class="fas fa-sync-alt me-2"></i> Actualizar
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Clientes y predicciones -->
+  <div class="row mb-4">
+    <div class="col-md-6">
+      <div class="card shadow-sm h-100">
+        <div class="card-header bg-light d-flex justify-content-between align-items-center">
+          <h5 class="mb-0">Clientes recientes</h5>
+          <a href="/clients" class="btn btn-sm btn-outline-primary">Ver todos</a>
+        </div>
+        <div class="card-body p-0">
+          <div class="table-responsive">
+            <table class="table table-hover mb-0">
+              <thead class="table-light">
+                <tr>
+                  <th>Cliente</th>
+                  <th>Estado</th>
+                  <th>Último contacto</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="recent-clients">
+                <tr>
+                  <td colspan="4" class="text-center py-3">Cargando clientes...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="card shadow-sm h-100">
+        <div class="card-header bg-light d-flex justify-content-between align-items-center">
+          <h5 class="mb-0">Predicciones</h5>
+          <a href="/predictive" class="btn btn-sm btn-outline-primary">Ver análisis completo</a>
+        </div>
+        <div class="card-body p-0">
+          <div class="table-responsive">
+            <table class="table table-hover mb-0">
+              <thead class="table-light">
+                <tr>
+                  <th>Cliente</th>
+                  <th>Probabilidad de conversión</th>
+                  <th>Próxima interacción</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="predictions">
+                <tr>
+                  <td colspan="4" class="text-center py-3">Cargando predicciones...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Alertas -->
+  <div class="row">
+    <div class="col-12">
+      <div class="card shadow-sm">
+        <div class="card-header bg-light d-flex justify-content-between align-items-center">
+          <h5 class="mb-0">Alertas recientes</h5>
+          <button class="btn btn-sm btn-outline-danger" id="clear-alerts">Limpiar todas</button>
+        </div>
+        <div class="card-body p-0">
+          <div id="alerts-container" class="p-3">
+            <p class="text-center text-muted py-3">No hay alertas recientes</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Cargar datos iniciales
+    loadDashboardData();
+    
+    // Configurar actualizaciones periódicas
+    setInterval(loadDashboardData, 30000); // Actualizar cada 30 segundos
+    
+    // Configurar eventos
+    document.getElementById('refresh-stats').addEventListener('click', loadDashboardData);
+    document.getElementById('clear-alerts').addEventListener('click', clearAlerts);
+    
+    // Configurar selector de rango de tiempo
+    document.querySelectorAll('[data-range]').forEach(item => {
+      item.addEventListener('click', function(e) {
+        e.preventDefault();
+        
+        // Actualizar UI
+        document.querySelector('.dropdown-toggle').textContent = this.textContent;
+        document.querySelectorAll('[data-range]').forEach(el => el.classList.remove('active'));
+        this.classList.add('active');
+        
+        // Cargar datos con nuevo rango
+        loadDashboardData(this.dataset.range);
+      });
+    });
+  });
+  
+  // Cargar datos del dashboard
+  function loadDashboardData(timeRange = '24h') {
+    // Mostrar indicadores de carga
+    document.getElementById('cpu-usage').textContent = '--';
+    document.getElementById('memory-usage').textContent = '--';
+    document.getElementById('uptime').textContent = '--';
+    document.getElementById('alerts-count').textContent = '--';
+    
+    // Cargar datos del sistema
+    fetch('/api/status')
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          updateSystemStatus(data.data);
+        }
+      })
+      .catch(error => console.error('Error al cargar estado del sistema:', error));
+    
+    // Cargar estadísticas
+    fetch(`/api/statistics?timeRange=${timeRange}`)
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          updateStatistics(data.data);
+        }
+      })
+      .catch(error => console.error('Error al cargar estadísticas:', error));
+    
+    // Cargar clientes recientes
+    fetch('/api/clients?limit=5')
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          updateRecentClients(data.data.clients);
+        }
+      })
+      .catch(error => console.error('Error al cargar clientes recientes:', error));
+    
+    // Cargar predicciones
+    fetch('/predictive/api/client-behavior')
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          updatePredictions(data.data);
+        }
+      })
+      .catch(error => console.error('Error al cargar predicciones:', error));
+  }
+  
+  // Actualizar estado del sistema
+  function updateSystemStatus(data) {
+    document.getElementById('cpu-usage').textContent = `${data.system.cpu.toFixed(1)}%`;
+    document.getElementById('memory-usage').textContent = `${data.system.memory.percentage.toFixed(1)}%`;
+    
+    // Formatear tiempo activo
+    const uptime = data.system.uptime;
+    const days = Math.floor(uptime / 86400);
+    const hours = Math.floor((uptime % 86400) / 3600);
+    const minutes = Math.floor((uptime % 3600) / 60);
+    
+    let uptimeText = '';
+    if (days > 0) uptimeText += `${days}d `;
+    if (hours > 0) uptimeText += `${hours}h `;
+    uptimeText += `${minutes}m`;
+    
+    document.getElementById('uptime').textContent = uptimeText;
+    
+    // Actualizar alertas
+    document.getElementById('alerts-count').textContent = data.alerts.length;
+    
+    // Mostrar alertas
+    const alertsContainer = document.getElementById('alerts-container');
+    
+    if (data.alerts.length === 0) {
+      alertsContainer.innerHTML = '<p class="text-center text-muted py-3">No hay alertas recientes</p>';
+    } else {
+      alertsContainer.innerHTML = '';
+      
+      data.alerts.forEach(alert => {
+        const alertElement = document.createElement('div');
+        alertElement.className = `alert alert-${getAlertClass(alert)} d-flex align-items-center`;
+        
+        alertElement.innerHTML = `
+          <i class="fas fa-exclamation-circle me-2"></i>
+          <div>
+            <strong>${alert.message}</strong>
+            <div class="small text-muted">${new Date(alert.timestamp).toLocaleString()}</div>
+          </div>
+        `;
+        
+        alertsContainer.appendChild(alertElement);
+      });
+    }
+  }
+  
+  // Actualizar estadísticas
+  function updateStatistics(data) {
+    // Actualizar contadores
+    const lastMetrics = data.metrics[data.metrics.length - 1];
+    
+    if (lastMetrics) {
+      document.getElementById('messages-count').textContent = lastMetrics.application.messageCount;
+      document.getElementById('active-clients').textContent = lastMetrics.application.activeChats;
+      document.getElementById('response-time').textContent = `${lastMetrics.application.responseTime.avg.toFixed(0)}ms`;
+      document.getElementById('error-rate').textContent = `${lastMetrics.application.errorRate.toFixed(1)}%`;
+      
+      // Actualizar barras de progreso
+      document.querySelector('.progress-bar.bg-primary').style.width = `${Math.min(100, lastMetrics.application.messageCount / 10)}%`;
+      document.querySelector('.progress-bar.bg-success').style.width = `${Math.min(100, lastMetrics.application.activeChats * 5)}%`;
+      document.querySelector('.progress-bar.bg-info').style.width = `${Math.min(100, lastMetrics.application.responseTime.avg / 50)}%`;
+      document.querySelector('.progress-bar.bg-danger').style.width = `${Math.min(100, lastMetrics.application.errorRate * 10)}%`;
+    }
+    
+    // Actualizar gráfico de actividad
+    updateActivityChart(data.metrics);
+  }
+  
+  // Actualizar gráfico de actividad
+  function updateActivityChart(metrics) {
+    const ctx = document.getElementById('activity-chart').getContext('2d');
+    
+    // Preparar datos
+    const labels = metrics.map(m => new Date(m.timestamp).toLocaleTimeString());
+    const messagesData = metrics.map(m => m.application.messageCount);
+    const responseTimeData = metrics.map(m => m.application.responseTime.avg / 1000); // Convertir a segundos
+    
+    // Crear o actualizar gráfico
+    if (window.activityChart) {
+      window.activityChart.data.labels = labels;
+      window.activityChart.data.datasets[0].data = messagesData;
+      window.activityChart.data.datasets[1].data = responseTimeData;
+      window.activityChart.update();
+    } else {
+      window.activityChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Mensajes',
+            data: messagesData,
+            borderColor: 'rgba(75, 192, 192, 1)',
+            backgroundColor: 'rgba(75, 192, 192, 0.2)',
+            yAxisID: 'y'
+          }, {
+            label: 'Tiempo de respuesta (s)',
+            data: responseTimeData,
+            borderColor: 'rgba(153, 102, 255, 1)',
+            backgroundColor: 'rgba(153, 102, 255, 0.2)',
+            yAxisID: 'y1'
+          }]
+        },
+        options: {
+          responsive: true,
+          interaction: {
+            mode: 'index',
+            intersect: false
+          },
+          scales: {
+            y: {
+              type: 'linear',
+              display: true,
+              position: 'left',
+              title: {
+                display: true,
+                text: 'Mensajes'
+              }
+            },
+            y1: {
+              type: 'linear',
+              display: true,
+              position: 'right',
+              grid: {
+                drawOnChartArea: false
+              },
+              title: {
+                display: true,
+                text: 'Tiempo (s)'
+              }
+            }
+          }
+        }
+      });
+    }
+  }
+  
+  // Actualizar clientes recientes
+  function updateRecentClients(clients) {
+    const container = document.getElementById('recent-clients');
+    
+    if (clients.length === 0) {
+      container.innerHTML = '<tr><td colspan="4" class="text-center py-3">No hay clientes recientes</td></tr>';
+    } else {
+      container.innerHTML = '';
+      
+      clients.forEach(client => {
+        const row = document.createElement('tr');
+        
+        row.innerHTML = `
+          <td>
+            <div class="d-flex align-items-center">
+              <div class="avatar avatar-sm me-2">
+                <div class="avatar-initial rounded-circle bg-primary">${client.name.charAt(0)}</div>
+              </div>
+              <div>
+                <div class="fw-bold">${client.name}</div>
+                <div class="small text-muted">${client.phone}</div>
+              </div>
+            </div>
+          </td>
+          <td>
+            <span class="badge bg-${getStatusClass(client.status)}">${client.status || 'Nuevo'}</span>
+          </td>
+          <td>${formatDate(client.lastContact)}</td>
+          <td>
+            <a href="/clients/${client.phone}" class="btn btn-sm btn-outline-primary">
+              <i class="fas fa-eye"></i>
+            </a>
+          </td>
+        `;
+        
+        container.appendChild(row);
+      });
+    }
+  }
+  
+  // Actualizar predicciones
+  function updatePredictions(predictions) {
+    const container = document.getElementById('predictions');
+    
+    if (!predictions || predictions.length === 0) {
+      container.innerHTML = '<tr><td colspan="4" class="text-center py-3">No hay predicciones disponibles</td></tr>';
+    } else {
+      container.innerHTML = '';
+      
+      // Ordenar por probabilidad de conversión (descendente)
+      predictions.sort((a, b) => b.predictions.conversionProbability - a.predictions.conversionProbability);
+      
+      // Mostrar top 5
+      predictions.slice(0, 5).forEach(prediction => {
+        const row = document.createElement('tr');
+        const probability = prediction.predictions.conversionProbability;
+        const nextInteraction = prediction.predictions.nextInteraction;
+        
+        row.innerHTML = `
+          <td>
+            <div class="d-flex align-items-center">
+              <div class="avatar avatar-sm me-2">
+                <div class="avatar-initial rounded-circle bg-primary">${prediction.client.name.charAt(0)}</div>
+              </div>
+              <div>
+                <div class="fw-bold">${prediction.client.name}</div>
+                <div class="small text-muted">${prediction.client.phone}</div>
+              </div>
+            </div>
+          </td>
+          <td>
+            <div class="d-flex align-items-center">
+              <div class="progress flex-grow-1 me-2" style="height: 5px;">
+                <div class="progress-bar bg-${getProbabilityClass(probability)}" style="width: ${probability * 100}%"></div>
+              </div>
+              <span>${(probability * 100).toFixed(0)}%</span>
+            </div>
+          </td>
+          <td>
+            <span class="badge bg-${getProbabilityClass(nextInteraction.probability)}">
+              ${nextInteraction.daysUntilNext} días
+            </span>
+            <small class="text-muted d-block">${nextInteraction.date}</small>
+          </td>
+          <td>
+            <a href="/predictive/recommendations/${prediction.client.phone}" class="btn btn-sm btn-outline-primary">
+              <i class="fas fa-lightbulb"></i>
+            </a>
+          </td>
+        `;
+        
+        container.appendChild(row);
+      });
+    }
+  }
+  
+  // Limpiar alertas
+  function clearAlerts() {
+    fetch('/api/alerts/clear', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          document.getElementById('alerts-container').innerHTML = '<p class="text-center text-muted py-3">No hay alertas recientes</p>';
+          document.getElementById('alerts-count').textContent = '0';
+        }
+      })
+      .catch(error => console.error('Error al limpiar alertas:', error));
+  }
+  
+  // Funciones auxiliares
+  function getStatusClass(status) {
+    switch (status) {
+      case 'active': return 'success';
+      case 'inactive': return 'warning';
+      case 'converted': return 'primary';
+      case 'lost': return 'danger';
+      default: return 'secondary';
+    }
+  }
+  
+  function getAlertClass(alert) {
+    if (alert.type === 'threshold') {
+      switch (alert.metric) {
+        case 'cpu':
+        case 'memory':
+          return alert.value > 90 ? 'danger' : 'warning';
+        case 'errorRate':
+          return alert.value > 10 ? 'danger' : 'warning';
+        default:
+          return 'warning';
+      }
+    } else {
+      return 'info';
+    }
+  }
+  
+  function getProbabilityClass(probability) {
+    if (probability >= 0.7) return 'success';
+    if (probability >= 0.4) return 'warning';
+    return 'danger';
+  }
+  
+  function formatDate(dateString) {
+    if (!dateString) return 'N/A';
+    
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffMs = now - date;
+    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+    
+    if (diffDays === 0) {
+      return 'Hoy ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    } else if (diffDays === 1) {
+      return 'Ayer ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    } else if (diffDays < 7) {
+      return `Hace ${diffDays} días`;
+    } else {
+      return date.toLocaleDateString();
+    }
+  }
+</script>
+
+<%- include('partials/footer') %>

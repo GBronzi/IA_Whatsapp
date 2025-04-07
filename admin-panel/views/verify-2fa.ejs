@@ -1,0 +1,43 @@
+<%- include('partials/header', { title: 'Verificación de dos factores' }) %>
+
+<div class="container">
+  <div class="row justify-content-center">
+    <div class="col-md-6 col-lg-4">
+      <div class="card shadow-lg border-0 rounded-lg mt-5">
+        <div class="card-header bg-primary text-white text-center">
+          <h3 class="my-4">Verificación de dos factores</h3>
+        </div>
+        <div class="card-body">
+          <% if (error) { %>
+            <div class="alert alert-danger" role="alert">
+              <%= error %>
+            </div>
+          <% } %>
+          <p class="text-center mb-4">
+            Ingrese el código de verificación de su aplicación Google Authenticator.
+          </p>
+          <form action="/verify-2fa" method="POST">
+            <input type="hidden" name="username" value="<%= username %>">
+            <div class="mb-4">
+              <label for="code" class="form-label">Código de verificación</label>
+              <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-key"></i></span>
+                <input type="text" class="form-control" id="code" name="code" placeholder="Ingrese el código de 6 dígitos" required autofocus pattern="[0-9]{6}" maxlength="6">
+              </div>
+            </div>
+            <div class="d-grid">
+              <button type="submit" class="btn btn-primary btn-lg">Verificar</button>
+            </div>
+          </form>
+        </div>
+        <div class="card-footer text-center py-3">
+          <div class="small">
+            <a href="/login" class="text-decoration-none">Volver al inicio de sesión</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%- include('partials/footer') %>
