@@ -84,6 +84,13 @@ sessions/
 sessions/*
 logs/
 logs/*
+data/keys/
+data/keys/*
+data/metrics/
+data/metrics/*
+data/human-assistance-training.json
+cache/
+cache/*
 
 # Archivos de prueba
 coverage/
