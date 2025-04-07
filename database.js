@@ -90,6 +90,8 @@ function initializeDatabase() {
             name TEXT,
             role TEXT NOT NULL,
             content TEXT NOT NULL,
+            message_id TEXT,
+            processed INTEGER DEFAULT 0,
             UNIQUE(chat_id, timestamp, role)
         )
     `);

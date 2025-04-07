@@ -1,12 +1,12 @@
 # Asistente de Ventas para WhatsApp
 
-Un asistente virtual para WhatsApp que utiliza IA (Ollama) para mantener conversaciones con clientes potenciales, recopilar información importante y almacenarla en Google Sheets o Bitrix24.
+Un asistente virtual para WhatsApp que utiliza IA (Ollama) para mantener conversaciones con clientes potenciales, recopilar información importante y almacenarla en Google Sheets.
 
 ## Características
 
 - 🤖 **Conversaciones con IA**: Utiliza Ollama (modelo llama3.2) para generar respuestas naturales
 - 📱 **Integración con WhatsApp**: Conexión mediante WhatsApp Web.js
-- 📊 **Integración con CRM**: Sincronización con Google Sheets (predeterminado) y Bitrix24 (opcional)
+- 📊 **Integración con CRM**: Sincronización con Google Sheets
 - 🔄 **Persistencia de datos**: Base de datos SQLite para almacenar historial de conversaciones
 - 📷 **Manejo de medios**: Procesa imágenes, audio, video y documentos
 - 🔒 **Seguridad mejorada**: Variables de entorno para configuración sensible
@@ -16,6 +16,8 @@ Un asistente virtual para WhatsApp que utiliza IA (Ollama) para mantener convers
 - 📢 **Sistema de notificaciones**: Alertas visuales y sonoras cuando se requiere intervención humana
 - 👁️ **Filtrado inteligente**: Responde solo a mensajes nuevos de chats individuales, ignorando grupos y estados
 - 💻 **Interfaz gráfica**: Aplicación de escritorio con interfaz minimalista para gestionar el asistente
+- 🔥 **Sistema de caché**: Optimización de rendimiento mediante caché multinivel
+- 🤖 **Detección avanzada de asistencia humana**: Algoritmos de NLP para identificar cuándo un cliente necesita hablar con un humano
 
 ## Requisitos previos
 
@@ -107,17 +109,28 @@ asistente-ventas-whatsapp/
 ├── media-handler.js      # Manejo de archivos multimedia
 ├── message-queue.js      # Sistema de colas para mensajes
 ├── logger.js             # Sistema de logging
+├── cache-manager.js      # Gestor de caché para optimización
+├── human-assistance-detector.js # Detector avanzado de asistencia humana
+├── notification-manager.js # Gestor de notificaciones
+├── cleanup.js            # Script para limpiar archivos obsoletos
 ├── credentials.json      # Credenciales de Google (no incluido en repo)
 ├── training-data.json    # Ejemplos de entrenamiento
 ├── electron/              # Código de la aplicación Electron
 │   ├── main.js           # Punto de entrada de Electron
 │   ├── preload.js        # Script de precarga
 │   └── renderer.js       # Código del renderizador
-├── test/                 # Pruebas automatizadas
-│   ├── app-launch.spec.js
-│   ├── crm-settings.spec.js
-│   ├── main-window.spec.js
-│   └── manual-ui-tests.md
+├── tests/                # Pruebas automatizadas
+│   ├── integration/       # Pruebas de integración
+│   │   ├── communication-test.js
+│   │   ├── storage-test.js
+│   │   ├── google-sheets-test.js
+│   │   └── notification-test.js
+│   ├── ui/                # Pruebas de interfaz gráfica
+│   │   ├── main-window.spec.js
+│   │   └── crm-settings.spec.js
+│   ├── database.test.js
+│   ├── license-client.test.js
+│   └── auto-updater.test.js
 ├── logs/                 # Archivos de log (generados automáticamente)
 ├── media/                # Archivos multimedia recibidos
 └── sessions/             # Sesiones de WhatsApp
@@ -139,15 +152,42 @@ Para ejecutar las pruebas con cobertura:
 npm run test:coverage
 ```
 
+### Pruebas de integración
+
+Para ejecutar todas las pruebas de integración:
+
+```
+npm run test:integration-all
+```
+
+O puedes ejecutar pruebas específicas:
+
+```
+npm run test:communication  # Pruebas de comunicación y sincronización
+npm run test:storage        # Pruebas de almacenamiento
+npm run test:sheets         # Pruebas de integración con Google Sheets
+npm run test:notifications  # Pruebas del sistema de notificaciones
+```
+
 ### Pruebas de interfaz gráfica
 
 Para ejecutar las pruebas de interfaz gráfica:
 
 ```
-npm run test:playwright
+npm run test:ui
 ```
 
-También puedes seguir la guía de pruebas manuales en `test/manual-ui-tests.md`.
+Para ejecutar las pruebas en modo visual (con navegador visible):
+
+```
+npm run test:ui:headed
+```
+
+Para ejecutar las pruebas en modo depuración:
+
+```
+npm run test:ui:debug
+```
 
 ## Contribuir
 
@@ -170,15 +210,6 @@ Este proyecto está licenciado bajo la Licencia ISC - ver el archivo LICENSE par
 3. En la pestaña "Google Sheets", introduce el ID de la hoja de cálculo
 4. Haz clic en "Probar conexión" para verificar que funciona correctamente
 5. Haz clic en "Guardar configuración"
-
-### Bitrix24 (opcional)
-
-1. Abre la aplicación
-2. Haz clic en "Configurar CRM"
-3. En la pestaña "Bitrix24", marca la casilla "Habilitar Bitrix24"
-4. Introduce la URL del webhook de Bitrix24
-5. Haz clic en "Probar conexión" para verificar que funciona correctamente
-6. Haz clic en "Guardar configuración"
 
 ## Contacto
 

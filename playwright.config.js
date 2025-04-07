@@ -5,7 +5,7 @@ const { defineConfig, devices } = require('@playwright/test');
  * @see https://playwright.dev/docs/test-configuration
  */
 module.exports = defineConfig({
-  testDir: './test',
+  testDir: './tests/ui',
   /* Maximum time one test can run for. */
   timeout: 30 * 1000,
   expect: {
