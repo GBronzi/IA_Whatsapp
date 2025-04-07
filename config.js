@@ -94,6 +94,21 @@ module.exports = {
     SECURITY_MASTER_ITERATIONS: getEnvAsInt('SECURITY_MASTER_ITERATIONS', 100000),
     SECURITY_MASTER_DIGEST: getEnv('SECURITY_MASTER_DIGEST', 'sha512'),
 
+    // Autenticación
+    AUTH_DIR: getEnv('AUTH_DIR', './data/auth'),
+    AUTH_USERS_FILE: getEnv('AUTH_USERS_FILE', 'users.json'),
+    AUTH_TOKEN_EXPIRATION: getEnvAsInt('AUTH_TOKEN_EXPIRATION', 3600),
+    AUTH_APP_NAME: getEnv('AUTH_APP_NAME', 'Asistente Ventas WhatsApp'),
+    AUTH_CODE_LENGTH: getEnvAsInt('AUTH_CODE_LENGTH', 6),
+    AUTH_VERIFY_WINDOW: getEnvAsInt('AUTH_VERIFY_WINDOW', 30),
+
+    // Respaldos
+    BACKUP_DIR: getEnv('BACKUP_DIR', './data/backups'),
+    BACKUP_INTERVAL: getEnvAsInt('BACKUP_INTERVAL', 24 * 60 * 60 * 1000), // 24 horas
+    BACKUP_MAX_COUNT: getEnvAsInt('BACKUP_MAX_COUNT', 7), // 7 días
+    BACKUP_ENCRYPT: getEnv('BACKUP_ENCRYPT', 'true'),
+    BACKUP_COMPRESS: getEnv('BACKUP_COMPRESS', 'true'),
+
     // Base de datos
     DB_PATH: path.join(__dirname, getEnv('DB_PATH', './database.sqlite')),
 

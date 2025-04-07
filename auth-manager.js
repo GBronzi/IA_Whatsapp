@@ -10,6 +10,7 @@ const path = require('path');
 const crypto = require('crypto');
 const os = require('os');
 const { authenticator } = require('otplib');
+const speakeasy = require('speakeasy');
 const QRCode = require('qrcode');
 const logger = require('./logger');
 const axios = require('axios');
@@ -141,12 +142,72 @@ function verifyToken(token) {
 }
 
 /**
+ * Verifica un código OTP usando speakeasy (más flexible)
+ * @param {string} token - Código OTP a verificar
+ * @returns {boolean} - true si el código es válido
+ */
+function verifyTokenWithSpeakeasy(token) {
+    try {
+        if (!authConfig.secretKey) {
+            logger.error('Auth Manager: No hay clave secreta configurada');
+            return false;
+        }
+
+        // Verificar el token con una ventana de tiempo más amplia
+        return speakeasy.totp.verify({
+            secret: authConfig.secretKey,
+            encoding: 'base32',
+            token,
+            window: 2 // Permite una ventana de 2 períodos (±1 minuto)
+        });
+    } catch (error) {
+        logger.error(`Auth Manager: Error al verificar token con speakeasy: ${error.message}`);
+        return false;
+    }
+}
+
+/**
+ * Genera un nuevo secreto para Google Authenticator usando speakeasy
+ * @returns {Object} - Objeto con el secreto y la URL para el código QR
+ */
+function generateNewSecret() {
+    try {
+        // Generar un nuevo secreto
+        const secret = speakeasy.generateSecret({
+            name: `${authConfig.appName}:${authConfig.userName}`
+        });
+
+        // Guardar el secreto en la configuración
+        authConfig.secretKey = secret.base32;
+
+        // Generar URL para el código QR
+        const otpauthUrl = secret.otpauth_url;
+
+        return {
+            secretKey: secret.base32,
+            otpauthUrl
+        };
+    } catch (error) {
+        logger.error(`Auth Manager: Error al generar nuevo secreto: ${error.message}`);
+        throw error;
+    }
+}
+
+/**
  * Autentica al usuario con un código OTP
  * @param {string} token - Código OTP
+ * @param {boolean} useSpeakeasy - Si es true, usa speakeasy para la verificación
  * @returns {boolean} - true si la autenticación es exitosa
  */
-function authenticate(token) {
-    const isValid = verifyToken(token);
+function authenticate(token, useSpeakeasy = false) {
+    // Intentar verificar con el método principal
+    let isValid = useSpeakeasy ? verifyTokenWithSpeakeasy(token) : verifyToken(token);
+
+    // Si falla y no estamos usando speakeasy, intentar con speakeasy como respaldo
+    if (!isValid && !useSpeakeasy) {
+        isValid = verifyTokenWithSpeakeasy(token);
+    }
+
     if (isValid) {
         isAuthenticated = true;
         logger.info('Auth Manager: Autenticación exitosa');
@@ -606,5 +667,8 @@ module.exports = {
     updateConfig,
     generateRecoveryCodes,
     verifyRecoveryCode,
-    recoverLicense
+    recoverLicense,
+    // Nuevos métodos para Google Authenticator
+    verifyTokenWithSpeakeasy,
+    generateNewSecret
 };

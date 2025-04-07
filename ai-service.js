@@ -472,6 +472,132 @@ function recognizeIntents(message) {
     return intentRecognizer.recognizeIntents(message);
 }
 
+/**
+ * Estima el número de tokens en un texto
+ * @param {string} text - Texto a analizar
+ * @returns {number} - Número estimado de tokens
+ */
+function estimateTokenCount(text) {
+    // Estimación simple: aproximadamente 1 token por cada 4 caracteres
+    return Math.ceil(text.length / 4);
+}
+
+/**
+ * Optimiza los parámetros del modelo según el contexto
+ * @param {Object} options - Opciones especificadas por el usuario
+ * @param {number} tokenCount - Número estimado de tokens
+ * @param {Object} context - Contexto de la conversación
+ * @returns {Object} - Parámetros optimizados
+ */
+function optimizeModelParameters(options, tokenCount, context = {}) {
+    // Parámetros base
+    const modelOptions = {
+        temperature: options.temperature || 0.7,
+        top_k: options.top_k || 40,
+        top_p: options.top_p || 0.9,
+        num_predict: options.max_tokens || 500
+    };
+
+    // Ajustar según la longitud del prompt
+    if (tokenCount > 2000) {
+        // Para prompts muy largos, reducir la longitud de respuesta
+        modelOptions.num_predict = Math.min(modelOptions.num_predict, 300);
+        // Reducir temperatura para respuestas más concisas
+        modelOptions.temperature = Math.min(modelOptions.temperature, 0.5);
+    } else if (tokenCount < 500) {
+        // Para prompts cortos, permitir respuestas más largas
+        modelOptions.num_predict = Math.min(modelOptions.num_predict + 100, 800);
+    }
+
+    // Ajustar según el contexto
+    if (context.primaryIntent) {
+        switch (context.primaryIntent) {
+            case 'product_info':
+            case 'technical_question':
+                // Para información factual, reducir temperatura
+                modelOptions.temperature = Math.min(modelOptions.temperature, 0.4);
+                break;
+
+            case 'creative_request':
+                // Para solicitudes creativas, aumentar temperatura
+                modelOptions.temperature = Math.max(modelOptions.temperature, 0.8);
+                break;
+        }
+    }
+
+    // Ajustar según el sentimiento
+    if (context.sentiment === 'negative' || context.sentiment === 'very_negative') {
+        // Para sentimientos negativos, ser más preciso y menos creativo
+        modelOptions.temperature = Math.min(modelOptions.temperature, 0.5);
+        modelOptions.top_p = Math.min(modelOptions.top_p, 0.8);
+    }
+
+    return modelOptions;
+}
+
+/**
+ * Calcula el tiempo de vida en caché basado en el contexto
+ * @param {Object} context - Contexto de la conversación
+ * @returns {Object} - Opciones de caché con TTL
+ */
+function calculateCacheTTL(context = {}) {
+    // TTL base: 1 hora
+    let ttl = 3600000; // 1 hora en ms
+
+    // Ajustar según la intención
+    if (context.primaryIntent) {
+        switch (context.primaryIntent) {
+            case 'product_info':
+            case 'pricing':
+                // Información de productos y precios: caché más larga (4 horas)
+                ttl = 4 * 3600000;
+                break;
+            case 'greeting':
+            case 'farewell':
+                // Saludos y despedidas: caché muy larga (24 horas)
+                ttl = 24 * 3600000;
+                break;
+            case 'complaint':
+            case 'urgent':
+                // Quejas y urgencias: caché corta (15 minutos)
+                ttl = 15 * 60000;
+                break;
+        }
+    }
+
+    // Ajustar según el sentimiento
+    if (context.sentiment === 'negative' || context.sentiment === 'very_negative') {
+        // Reducir TTL para sentimientos negativos
+        ttl = Math.min(ttl, 30 * 60000); // 30 minutos máximo
+    }
+
+    return { ttl };
+}
+
+/**
+ * Registra métricas de rendimiento de la IA
+ * @param {number} processingTime - Tiempo de procesamiento en ms
+ * @param {number} tokenCount - Número de tokens
+ * @param {boolean} cacheHit - Si se obtuvo de caché
+ * @param {boolean} error - Si hubo un error
+ */
+function trackAiMetrics(processingTime, tokenCount, cacheHit = false, error = false) {
+    try {
+        // Si el módulo de monitoreo está disponible, registrar métricas
+        const monitoringSystem = require('./monitoring-system');
+
+        monitoringSystem.trackAiRequest({
+            processingTime,
+            tokenCount,
+            cacheHit,
+            error
+        });
+    } catch (e) {
+        // Si no está disponible, ignorar silenciosamente
+        logger.debug('Módulo de monitoreo no disponible para registrar métricas de IA');
+    }
+}
+
 module.exports = {
     callOllamaAndProcess,
     formatHistoryForOllama,
@@ -480,5 +606,10 @@ module.exports = {
     loadTrainingExamples,
     getRecommendedModels,
     analyzeSentiment,
-    recognizeIntents
+    recognizeIntents,
+    // Nuevas funciones de optimización
+    estimateTokenCount,
+    optimizeModelParameters,
+    calculateCacheTTL,
+    trackAiMetrics
 };
